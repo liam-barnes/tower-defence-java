@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="WizardTD.PlayerTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2023-10-27T12:44:24" hostname="liam-macbook.shared.sydney.edu.au" time="0.104">
+  <properties/>
+  <testcase name="checkRangeToggle()" classname="WizardTD.PlayerTest" time="0.057"/>
+  <testcase name="checkFastForwardToggle()" classname="WizardTD.PlayerTest" time="0.003"/>
+  <testcase name="killPlayer()" classname="WizardTD.PlayerTest" time="0.004"/>
+  <testcase name="validateManaPool()" classname="WizardTD.PlayerTest" time="0.01"/>
+  <testcase name="checkSpeedToggle()" classname="WizardTD.PlayerTest" time="0.002"/>
+  <testcase name="checkBuildToggle()" classname="WizardTD.PlayerTest" time="0.004"/>
+  <testcase name="checkDamageToggle()" classname="WizardTD.PlayerTest" time="0.002"/>
+  <testcase name="checkPauseToggle()" classname="WizardTD.PlayerTest" time="0.003"/>
+  <testcase name="modifyMana()" classname="WizardTD.PlayerTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

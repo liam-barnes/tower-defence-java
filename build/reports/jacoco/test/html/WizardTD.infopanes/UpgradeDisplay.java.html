@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UpgradeDisplay.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.infopanes</a> &gt; <span class="el_source">UpgradeDisplay.java</span></div><h1>UpgradeDisplay.java</h1><pre class="source lang-java linenums">package WizardTD.infopanes;
+
+import WizardTD.board.towers.Tower;
+import WizardTD.utils.Drawable;
+import static WizardTD.utils.Dimensions.*;
+
+import java.util.ArrayList;
+
+import processing.core.PApplet;
+
+public class UpgradeDisplay implements Drawable {
+    // private Player player;
+    // private Tower tower;
+
+    private float total;
+
+    private boolean show;
+
+<span class="fc" id="L19">    private ArrayList&lt;String&gt; upgrades = new ArrayList&lt;&gt;();</span>
+
+    /**
+     * Initalises the upgrade display determining which upgrades the display should
+     * show and calculating the total cost of these upgrades
+     * 
+     * @param player an object Player representing the player playing the current
+     *               game.
+     * @param tower  the Tower over which the player's mouse is hovering.
+     */
+<span class="fc" id="L29">    public UpgradeDisplay(Player player, Tower tower) {</span>
+        // this.player = player;
+        // this.tower = tower;
+
+<span class="pc bpc" id="L33" title="2 of 6 branches missed.">        if (player.isUpgradingDamage() || player.isUpgradingSpeed() || player.isUpgradingRange()) {</span>
+<span class="fc" id="L34">            this.show = true;</span>
+        } else {
+<span class="fc" id="L36">            this.show = false;</span>
+        }
+
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (player.isUpgradingDamage()) {</span>
+<span class="fc" id="L40">            upgrades.add(&quot;Damage: &quot; + tower.getDamageUpgradeCost());</span>
+<span class="fc" id="L41">            total += tower.getDamageUpgradeCost();</span>
+        }
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (player.isUpgradingSpeed()) {</span>
+<span class="fc" id="L45">            upgrades.add(&quot;Speed: &quot; + tower.getFiringSpeedUpgradeCost());</span>
+<span class="fc" id="L46">            total += tower.getFiringSpeedUpgradeCost();</span>
+        }
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (player.isUpgradingRange()) {</span>
+<span class="fc" id="L50">            upgrades.add(&quot;Range: &quot; + tower.getRangeUpgradeCost());</span>
+<span class="fc" id="L51">            total += tower.getRangeUpgradeCost();</span>
+        }
+
+<span class="fc" id="L54">    }</span>
+
+    public void updateLogic() {
+        // do something
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * Draw objects to the window.
+     * 
+     * @param app the PApplet representing the game window.
+     */
+    public void draw(PApplet app) {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (!show) {</span>
+<span class="fc" id="L67">            return;</span>
+        }
+<span class="fc" id="L69">        int flexibleSize = (upgrades.size() - 1) * 20;</span>
+
+<span class="fc" id="L71">        app.fill(255);</span>
+<span class="fc" id="L72">        app.strokeWeight(1);</span>
+<span class="fc" id="L73">        app.rect(WIDTH - SIDEBAR + 10, HEIGHT - 150, 100, 60 + flexibleSize);</span>
+
+        // BARS
+        // app.strokeWeight(2);
+<span class="fc" id="L77">        app.fill(0);</span>
+<span class="fc" id="L78">        app.textSize(13);</span>
+<span class="fc" id="L79">        app.text(&quot;Upgrade Cost&quot;, WIDTH - SIDEBAR + 10 + 2, HEIGHT - 130 - 3);</span>
+
+<span class="fc" id="L81">        app.textSize(11);</span>
+        // if (upgrades.size())
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        for (int i = 0; i &lt; upgrades.size(); i++) {</span>
+<span class="fc" id="L84">            app.text(upgrades.get(i), WIDTH - SIDEBAR + 10 + 2, HEIGHT - 110 - 3 + (20 * i));</span>
+        }
+
+<span class="fc" id="L87">        app.fill(255);</span>
+<span class="fc" id="L88">        app.rect(WIDTH - SIDEBAR + 10, HEIGHT - 130, 100, 1);</span>
+
+<span class="fc" id="L90">        app.rect(WIDTH - SIDEBAR + 10, HEIGHT - 110 + flexibleSize, 100, 1);</span>
+
+<span class="fc" id="L92">        app.fill(0);</span>
+<span class="fc" id="L93">        app.text(&quot;Total: &quot; + total, WIDTH - SIDEBAR + 10 + 2, HEIGHT - 110 + flexibleSize + 15);</span>
+
+<span class="fc" id="L95">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

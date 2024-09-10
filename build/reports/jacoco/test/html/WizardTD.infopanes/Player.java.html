@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Player.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.infopanes</a> &gt; <span class="el_source">Player.java</span></div><h1>Player.java</h1><pre class="source lang-java linenums">package WizardTD.infopanes;
+
+import WizardTD.board.towers.Tower;
+import WizardTD.game.Game;
+import WizardTD.utils.Drawable;
+import processing.core.PApplet;
+
+public class Player implements Drawable {
+    private static int initialMana;
+    private static int initialManaCap;
+    private static int initialManaGainRate;
+    private static float initialManaGainMultiplier;
+    private static float initialManaCapMultiplier;
+    private static float initialManaPoolCost;
+    private static float initialManaPoolCostIncrease;
+
+<span class="fc" id="L17">    private boolean pause = false;</span>
+<span class="fc" id="L18">    private boolean fastForward = false;</span>
+<span class="fc" id="L19">    private boolean buildMode = false;</span>
+<span class="fc" id="L20">    private boolean upgradeSpeedMode = false;</span>
+<span class="fc" id="L21">    private boolean upgradeRangeMode = false;</span>
+<span class="fc" id="L22">    private boolean upgradeDamageMode = false;</span>
+
+<span class="fc" id="L24">    private boolean alive = false;</span>
+<span class="fc" id="L25">    private float mana = 1000;</span>
+<span class="fc" id="L26">    private float manaCap = 1050;</span>
+<span class="fc" id="L27">    private float manaGainRate = 3;</span>
+<span class="fc" id="L28">    private float manaGainMultiplier = (float) 1.1;</span>
+<span class="fc" id="L29">    private float manaCapMultiplier = (float) 1.25;</span>
+<span class="fc" id="L30">    private float manaPoolCost = 100;</span>
+<span class="fc" id="L31">    private float manaPoolCostIncrease = 150;</span>
+
+    private SideBar sideBar;
+    private TopBar topBar;
+
+<span class="fc" id="L36">    private UpgradeDisplay currentUpgradeDisplay = null;</span>
+<span class="fc" id="L37">    private ToolTip toolTip = null;</span>
+
+<span class="fc" id="L39">    public Player(Game game) {</span>
+<span class="fc" id="L40">        sideBar = new SideBar(this);</span>
+<span class="fc" id="L41">        this.topBar = new TopBar(game, this);</span>
+
+<span class="fc" id="L43">        mana = initialMana;</span>
+<span class="fc" id="L44">        manaCap = initialManaCap;</span>
+<span class="fc" id="L45">        manaGainRate = initialManaGainRate;</span>
+<span class="fc" id="L46">        manaCapMultiplier = initialManaCapMultiplier;</span>
+<span class="fc" id="L47">        manaGainMultiplier = initialManaGainMultiplier;</span>
+
+<span class="fc" id="L49">        manaPoolCost = initialManaPoolCost;</span>
+<span class="fc" id="L50">        manaPoolCostIncrease = initialManaPoolCostIncrease;</span>
+
+<span class="fc" id="L52">        alive = true;</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Set initial values for all future players.
+     * 
+     * @param iMana                 the initial amount of mana.
+     * @param iManaCap              the initial maximum amount of mana.
+     * @param iManaGainRate         the rate at which a player naturally gains mana.
+     * @param iManaGainMultiplier   the increase multiplier in mana gain due to the
+     *                              use of the mana pool spell.
+     * @param iManaCapMultiplier    the increase in the mana cap due to the use of
+     *                              the mana pool spell.
+     * @param iManaPoolCost         the intial cost of using the mana pool spell.
+     * @param iManaPoolCostIncrease the increase in the cost of using the mana pool
+     *                              spell after every use.
+     */
+    public static void setInitialProperties(int iMana, int iManaCap, int iManaGainRate, float iManaGainMultiplier,
+            float iManaCapMultiplier, float iManaPoolCost, float iManaPoolCostIncrease) {
+<span class="fc" id="L71">        initialMana = iMana;</span>
+<span class="fc" id="L72">        initialManaCap = iManaCap;</span>
+<span class="fc" id="L73">        initialManaGainRate = iManaGainRate;</span>
+<span class="fc" id="L74">        initialManaCapMultiplier = iManaCapMultiplier;</span>
+<span class="fc" id="L75">        initialManaGainMultiplier = iManaGainMultiplier;</span>
+<span class="fc" id="L76">        initialManaPoolCost = iManaPoolCost;</span>
+<span class="fc" id="L77">        initialManaPoolCostIncrease = iManaPoolCostIncrease;</span>
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * @return A boolean indicating whether a tooltip is being shown.
+     */
+    public boolean showingToolTip() {
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (toolTip != null) {</span>
+<span class="fc" id="L85">            return true;</span>
+        } else {
+<span class="fc" id="L87">            return false;</span>
+        }
+    }
+
+    /**
+     * Create new tooltip to show the cost of the action of the button.
+     * 
+     * @param button the button overwhich the player's mouse is hovering
+     */
+    public void showToolTip(Button button) {
+<span class="fc" id="L97">        toolTip = new ToolTip(this, button);</span>
+<span class="fc" id="L98">    }</span>
+
+    /**
+     * Send the currentUpgradeDisplay to the garbage collector and prepare for the
+     * next one.
+     */
+    public void hideToolTip() {
+<span class="fc" id="L105">        toolTip = null;</span>
+<span class="fc" id="L106">    }</span>
+
+    /**
+     * @return a boolean indicating whether an upgrade display is being shown.
+     */
+    public boolean showingUpgradeDisplay() {
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (currentUpgradeDisplay != null) {</span>
+<span class="fc" id="L113">            return true;</span>
+        } else {
+<span class="nc" id="L115">            return false;</span>
+        }
+    }
+
+    /**
+     * Create new upgrade dispaly for the tower over which the player's mouse
+     * hovers.
+     * 
+     * @param tower the tower to be upgraded.
+     */
+    public void showUpgradeDisplay(Tower tower) {
+<span class="fc" id="L126">        currentUpgradeDisplay = new UpgradeDisplay(this, tower);</span>
+<span class="fc" id="L127">    }</span>
+
+    /**
+     * Send the currentUpgradeDisplay to the garbage collector and prepare for the
+     * next one.
+     */
+    public void hideUpgradeDisplay() {
+<span class="fc" id="L134">        currentUpgradeDisplay = null;</span>
+<span class="fc" id="L135">    }</span>
+
+    public boolean isAlive() {
+<span class="fc" id="L138">        return alive;</span>
+    }
+
+    /**
+     * Exposes all of the sidebar buttons.
+     * 
+     * @return An array of buttons.
+     */
+    public Button[] getButtons() {
+<span class="fc" id="L147">        return sideBar.getButtons();</span>
+    }
+
+    public float getMana() {
+<span class="fc" id="L151">        return mana;</span>
+    }
+
+    public float getManaCap() {
+<span class="fc" id="L155">        return manaCap;</span>
+    }
+
+    public float getManaGainRate() {
+<span class="fc" id="L159">        return manaGainRate;</span>
+    }
+
+    public float getManaPoolCost() {
+<span class="fc" id="L163">        return manaPoolCost;</span>
+    }
+
+    /**
+     * Adjusts the players mana including the calculation of many multipliers. Kills
+     * the player if the mana is reduced below 0. Prevents the mana from
+     * exceeding the mana cap.
+     * 
+     * @param adjustment the amount (positive or negative) that the players mana
+     *                   will be adjusted by before the application of any
+     *                   multipliers.
+     */
+    public void updateMana(float adjustment) {
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (adjustment &gt; 0) {</span>
+<span class="fc" id="L177">            mana = mana + (adjustment * manaGainMultiplier);</span>
+
+        } else {
+<span class="fc" id="L180">            mana = mana + adjustment;</span>
+        }
+
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        if (mana &lt;= 0) {</span>
+<span class="fc" id="L184">            mana = 0;</span>
+<span class="fc" id="L185">            alive = false;</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        } else if (mana &gt; manaCap) {</span>
+<span class="fc" id="L187">            mana = manaCap;</span>
+        }
+<span class="fc" id="L189">    }</span>
+
+    /**
+     * If the player can purchase the ugrade, adjust the players mana and return
+     * true.
+     * 
+     * @param cost the cost of the proposed upgrade.
+     * @return a boolean indicating whether or not the player has successfully
+     *         purchased the upgrade.
+     */
+    public boolean purchaseUpgrade(float cost) {
+<span class="fc bfc" id="L200" title="All 2 branches covered.">        if (mana &gt; cost) {</span>
+<span class="fc" id="L201">            mana = mana - cost;</span>
+<span class="fc" id="L202">            return true;</span>
+        } else {
+<span class="fc" id="L204">            return false;</span>
+        }
+    }
+
+    public boolean isFastforwarding() {
+<span class="fc" id="L209">        return fastForward;</span>
+    }
+
+    public boolean isPaused() {
+<span class="fc" id="L213">        return pause;</span>
+    }
+
+    public boolean isBuilding() {
+<span class="fc" id="L217">        return buildMode;</span>
+    }
+
+    public boolean isUpgradingSpeed() {
+<span class="fc" id="L221">        return upgradeSpeedMode;</span>
+    }
+
+    public boolean isUpgradingDamage() {
+<span class="fc" id="L225">        return upgradeDamageMode;</span>
+    }
+
+    public boolean isUpgradingRange() {
+<span class="fc" id="L229">        return upgradeRangeMode;</span>
+    }
+
+    /**
+     * Update fastforward button and invert the state of upgrade fastforward mode.
+     */
+    public void toggleFastForwardState() {
+<span class="fc" id="L236">        sideBar.getButtons()[0].toggleState();</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        if (fastForward) {</span>
+<span class="fc" id="L238">            fastForward = false;</span>
+        } else {
+<span class="fc" id="L240">            fastForward = true;</span>
+        }
+<span class="fc" id="L242">    }</span>
+
+    /**
+     * Update pause button and invert the state of upgrade pause mode.
+     */
+    public void togglePauseState() {
+<span class="fc" id="L248">        sideBar.getButtons()[1].toggleState();</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">        if (pause) {</span>
+<span class="fc" id="L250">            pause = false;</span>
+        } else {
+<span class="fc" id="L252">            pause = true;</span>
+        }
+<span class="fc" id="L254">    }</span>
+
+    /**
+     * Update tower build button and invert the state of build mode.
+     */
+    public void toggleBuildModeState() {
+<span class="fc" id="L260">        sideBar.getButtons()[2].toggleState();</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">        if (buildMode) {</span>
+<span class="fc" id="L262">            buildMode = false;</span>
+        } else {
+<span class="fc" id="L264">            buildMode = true;</span>
+        }
+<span class="fc" id="L266">    }</span>
+
+    /**
+     * Update range and invert the state of upgrade range mode.
+     */
+    public void toggleUpgradeRangeModeState() {
+<span class="fc" id="L272">        sideBar.getButtons()[3].toggleState();</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">        if (upgradeRangeMode) {</span>
+<span class="fc" id="L274">            upgradeRangeMode = false;</span>
+        } else {
+<span class="fc" id="L276">            upgradeRangeMode = true;</span>
+        }
+<span class="fc" id="L278">    }</span>
+
+    /**
+     * Update speed button and invert the state of upgrade speed mode.
+     */
+    public void toggleUpgradeSpeedModeState() {
+<span class="fc" id="L284">        sideBar.getButtons()[4].toggleState();</span>
+<span class="fc bfc" id="L285" title="All 2 branches covered.">        if (upgradeSpeedMode) {</span>
+<span class="fc" id="L286">            upgradeSpeedMode = false;</span>
+        } else {
+<span class="fc" id="L288">            upgradeSpeedMode = true;</span>
+        }
+<span class="fc" id="L290">    }</span>
+
+    /**
+     * Update damage button and invert the state of upgrade damage mode.
+     */
+    public void toggleUpgradeDamageModeState() {
+<span class="fc" id="L296">        sideBar.getButtons()[5].toggleState();</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">        if (upgradeDamageMode) {</span>
+<span class="fc" id="L298">            upgradeDamageMode = false;</span>
+        } else {
+<span class="fc" id="L300">            upgradeDamageMode = true;</span>
+        }
+<span class="fc" id="L302">    }</span>
+
+    /**
+     * If the player can successfully purchase the pool spell, update the mana cap
+     * and mana gain rate and increase the future cost of the spell.
+     */
+    public void useManaPoolSpell() {
+<span class="fc bfc" id="L309" title="All 2 branches covered.">        if (purchaseUpgrade(manaPoolCost)) {</span>
+<span class="fc" id="L310">            manaPoolCost = manaPoolCost + manaPoolCostIncrease;</span>
+<span class="fc" id="L311">            manaCap = manaCap * manaCapMultiplier;</span>
+<span class="fc" id="L312">            manaGainRate = manaGainRate * manaGainMultiplier;</span>
+        }
+<span class="fc" id="L314">    }</span>
+
+    /**
+     * Modify the logic and position of drawable objects to simulate movement and
+     * motion.
+     */
+    public void updateLogic() {
+<span class="fc bfc" id="L321" title="All 2 branches covered.">        if (currentUpgradeDisplay != null) {</span>
+<span class="fc" id="L322">            currentUpgradeDisplay.updateLogic();</span>
+        }
+<span class="fc" id="L324">    }</span>
+
+    /**
+     * Draw objects to the window.
+     * 
+     * @param app the PApplet representing the game window.
+     */
+    public void draw(PApplet app) {
+<span class="fc" id="L332">        sideBar.draw(app);</span>
+<span class="fc" id="L333">        topBar.draw(app);</span>
+
+<span class="fc bfc" id="L335" title="All 2 branches covered.">        if (currentUpgradeDisplay != null) {</span>
+<span class="fc" id="L336">            currentUpgradeDisplay.draw(app);</span>
+        }
+
+<span class="fc bfc" id="L339" title="All 2 branches covered.">        if (toolTip != null) {</span>
+<span class="fc" id="L340">            toolTip.draw(app);</span>
+        }
+
+<span class="fc" id="L343">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

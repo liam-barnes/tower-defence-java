@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tower.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.board.towers</a> &gt; <span class="el_source">Tower.java</span></div><h1>Tower.java</h1><pre class="source lang-java linenums">package WizardTD.board.towers;
+
+import WizardTD.utils.Drawable;
+import WizardTD.utils.ImageLoader;
+import processing.core.PApplet;
+import processing.core.PImage;
+
+import WizardTD.entities.projectiles.Fireball;
+
+import static WizardTD.utils.Dimensions.*;
+
+import java.util.Stack;
+
+public class Tower implements Drawable {
+<span class="fc" id="L15">    private static float initialDamage = 10;</span>
+<span class="fc" id="L16">    private static float initialRange = 32;</span>
+<span class="fc" id="L17">    private static float initialFiringSpeed = 3;</span>
+<span class="fc" id="L18">    private static float buildCost = 100;</span>
+
+    private float range;
+    private float firingSpeed;
+    private float damage;
+
+    private int rangeLevel;
+    private int damageLevel;
+    private int firingSpeedLevel;
+
+    private int xPixels;
+    private int yPixels;
+
+<span class="fc" id="L31">    private int time = 0;</span>
+
+<span class="fc" id="L33">    private boolean displayRange = false;</span>
+
+<span class="fc" id="L35">    private Stack&lt;Fireball&gt; fireball = new Stack&lt;&gt;();</span>
+
+    private PImage towerImage;
+
+    /**
+     * Initialises the tower by setting initial values and loading the basic tower
+     * image.
+     * 
+     * @param xPixels the x position of the tower in the window in pixels.
+     * @param yPixels the y position of the tower in the window in pixels.
+     */
+<span class="fc" id="L46">    public Tower(int xPixels, int yPixels) {</span>
+<span class="fc" id="L47">        this.range = initialRange;</span>
+<span class="fc" id="L48">        this.firingSpeed = initialFiringSpeed;</span>
+<span class="fc" id="L49">        this.damage = initialDamage;</span>
+
+<span class="fc" id="L51">        rangeLevel = 0;</span>
+<span class="fc" id="L52">        damageLevel = 0;</span>
+<span class="fc" id="L53">        firingSpeedLevel = 0;</span>
+
+<span class="fc" id="L55">        this.xPixels = xPixels;</span>
+<span class="fc" id="L56">        this.yPixels = yPixels;</span>
+
+<span class="fc" id="L58">        this.towerImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/tower0.png&quot;);</span>
+<span class="fc" id="L59">    }</span>
+
+    /**
+     * Set initial values for all future towers.
+     * 
+     * @param iDamage        the initial damage the tower's fireballs inflict.
+     * @param iRange         the initial maximum distance from which the tower can
+     *                       shoot fireballs.
+     * @param iSpeed         the initial rate at which the tower shoots fireballs.
+     * @param towerBuildCost the initial cost of building a tower.
+     */
+    public static void setInitialProperties(float iDamage, float iRange, float iSpeed, float towerBuildCost) {
+<span class="fc" id="L71">        initialDamage = iDamage;</span>
+<span class="fc" id="L72">        initialRange = iRange;</span>
+<span class="fc" id="L73">        initialFiringSpeed = iSpeed;</span>
+<span class="fc" id="L74">        buildCost = towerBuildCost;</span>
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * The X position of the tower in pixels.
+     * 
+     * @return int of pixels rightward.
+     */
+    public int getXPixels() {
+<span class="fc" id="L83">        return xPixels;</span>
+    }
+
+    /**
+     * The Y position of the tower in pixels.
+     * 
+     * @return int of pixels downard.
+     */
+    public int getYPixels() {
+<span class="fc" id="L92">        return yPixels;</span>
+    }
+
+    /**
+     * @return a PImage object of the tower's current image.
+     */
+    public PImage getTowerImage() {
+<span class="fc" id="L99">        return towerImage;</span>
+    }
+
+    /**
+     * @return A float denoting the current range.
+     */
+    public float getRange() {
+<span class="fc" id="L106">        return range;</span>
+    }
+
+    /**
+     * @return A float denoting the current firing speed.
+     */
+    public float getFiringSpeed() {
+<span class="fc" id="L113">        return firingSpeed;</span>
+    }
+
+    /**
+     * @return A float denoting amount of damage the tower currently inflicts on
+     *         monster's that its fireballs hit.
+     */
+    public float getDamage() {
+<span class="fc" id="L121">        return damage;</span>
+    }
+
+    /**
+     * @return Either the default or config specified cost of building a tower.
+     */
+    public static float getBuildCost() {
+<span class="fc" id="L128">        return buildCost;</span>
+    }
+
+    /**
+     * @return The current cost of upgrading the tower's range.
+     */
+    public int getRangeUpgradeCost() {
+<span class="fc" id="L135">        return 10 + (rangeLevel + 1) * 10;</span>
+    }
+
+    /**
+     * @return The current cost of upgrading the tower's damage.
+     */
+    public int getDamageUpgradeCost() {
+<span class="fc" id="L142">        return 10 + (damageLevel + 1) * 10;</span>
+    }
+
+    /**
+     * @return The current cost of upgrading the tower's firing speed.
+     */
+    public int getFiringSpeedUpgradeCost() {
+<span class="fc" id="L149">        return 10 + (firingSpeedLevel + 1) * 10;</span>
+    }
+
+    public int getRangeLevel() {
+<span class="fc" id="L153">        return rangeLevel;</span>
+    }
+
+    public int getDamageLevel() {
+<span class="fc" id="L157">        return damageLevel;</span>
+    }
+
+    public int getSpeedLevel() {
+<span class="fc" id="L161">        return firingSpeedLevel;</span>
+    }
+
+<span class="fc" id="L164">    private int minUpgradeLevel = 0;</span>
+<span class="fc" id="L165">    private int firingSpeedSquares = 0;</span>
+<span class="fc" id="L166">    private int damageXs = 0;</span>
+<span class="fc" id="L167">    private int rangeOs = 0;</span>
+
+    /**
+     * Determines the decorations that need to be added to the tower to indicate its
+     * current upgrades.
+     */
+    public void calculateLevelIdentifiers() {
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (minUpgradeLevel &lt;= 2) {</span>
+<span class="fc" id="L175">            firingSpeedSquares = firingSpeedLevel - minUpgradeLevel;</span>
+<span class="fc" id="L176">            damageXs = damageLevel - minUpgradeLevel;</span>
+<span class="fc" id="L177">            rangeOs = rangeLevel - minUpgradeLevel;</span>
+        } else {
+<span class="fc" id="L179">            firingSpeedSquares = firingSpeedLevel - 2;</span>
+<span class="fc" id="L180">            damageXs = damageLevel - 2;</span>
+<span class="fc" id="L181">            rangeOs = rangeLevel - 2;</span>
+        }
+
+<span class="fc" id="L184">    }</span>
+
+    /**
+     * Determines the appropriate image for the tower based on the tower's current
+     * upgrade levels.
+     */
+    public void determineTowerImage() {
+<span class="fc" id="L191">        minUpgradeLevel = Math.min(rangeLevel, Math.min(firingSpeedLevel, damageLevel));</span>
+
+<span class="fc bfc" id="L193" title="All 2 branches covered.">        if (minUpgradeLevel == 1) {</span>
+<span class="fc" id="L194">            setTowerImage(ImageLoader.getImage(&quot;src/main/resources/WizardTD/tower1.png&quot;));</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        } else if (minUpgradeLevel == 2) {</span>
+<span class="fc" id="L196">            setTowerImage(ImageLoader.getImage(&quot;src/main/resources/WizardTD/tower2.png&quot;));</span>
+        }
+<span class="fc" id="L198">    }</span>
+
+    /**
+     * Increases the distance from which a tower can shoot a fireball at a monster.
+     */
+    public void upgradeRange() {
+<span class="fc" id="L204">        range = range + 32;</span>
+<span class="fc" id="L205">        rangeLevel++;</span>
+
+<span class="fc" id="L207">        determineTowerImage();</span>
+<span class="fc" id="L208">        calculateLevelIdentifiers();</span>
+<span class="fc" id="L209">    }</span>
+
+    /**
+     * Increases the rate at which the tower shoots fireballs.
+     */
+    public void upgradeFiringSpeed() {
+<span class="fc" id="L215">        firingSpeed = firingSpeed + 1; // CORRECT TO PROPER UPGRADE</span>
+<span class="fc" id="L216">        firingSpeedLevel++;</span>
+
+<span class="fc" id="L218">        determineTowerImage();</span>
+<span class="fc" id="L219">        calculateLevelIdentifiers();</span>
+<span class="fc" id="L220">    }</span>
+
+    /**
+     * Increates the amount of damage inflicted the fireballs that hit monsters.
+     */
+    public void upgradeDamage() {
+<span class="fc" id="L226">        damage += initialDamage / 2;</span>
+<span class="fc" id="L227">        damageLevel++;</span>
+
+<span class="fc" id="L229">        determineTowerImage();</span>
+<span class="fc" id="L230">        calculateLevelIdentifiers();</span>
+<span class="fc" id="L231">    }</span>
+
+    /**
+     * Sets and stores an image for the tower.
+     * 
+     * @param towerImage an image for the tower.
+     */
+    public void setTowerImage(PImage towerImage) {
+<span class="fc" id="L239">        this.towerImage = towerImage;</span>
+<span class="fc" id="L240">    }</span>
+
+    /**
+     * @return Whether the tower is currently displaying the yellow circle
+     *         indicating its range.
+     */
+    public boolean getDisplayRangeState() {
+<span class="fc" id="L247">        return displayRange;</span>
+    }
+
+    /**
+     * Enables/disables the yellow range indicating the range of the tower.
+     */
+    public void toggleDisplayRange() {
+<span class="pc bpc" id="L254" title="1 of 2 branches missed.">        if (displayRange) {</span>
+<span class="nc" id="L255">            displayRange = false;</span>
+        } else {
+<span class="fc" id="L257">            displayRange = true;</span>
+        }
+<span class="fc" id="L259">    }</span>
+
+    /**
+     * Increments the internal tower time by 1
+     */
+    private void tick() {
+<span class="fc" id="L265">        time++;</span>
+<span class="fc" id="L266">    }</span>
+
+    /**
+     * Removes the current fireball from the stack in order to prepare to generate
+     * the next fireball.
+     * 
+     * @return The current fireball.
+     */
+    public Fireball nextFireball() {
+<span class="fc" id="L275">        return fireball.pop();</span>
+    }
+
+    /**
+     * @return The current fireball.
+     */
+    public Fireball getCurrentFireball() {
+<span class="fc bfc" id="L282" title="All 2 branches covered.">        if (fireball.size() != 0) {</span>
+<span class="fc" id="L283">            return fireball.peek();</span>
+        } else {
+<span class="fc" id="L285">            return null;</span>
+        }
+    }
+
+    /**
+     * If the tower does not currently have a Fireball, a new Fireball will be added
+     * to attack monsters.
+     * 
+     * @param newFireball the next fireball this tower will use to attack.
+     */
+    public void createFireball(Fireball newFireball) {
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">        if (fireball.size() == 0) {</span>
+<span class="fc" id="L297">            fireball.add(newFireball);</span>
+        } else {
+<span class="nc" id="L299">            return;</span>
+        }
+<span class="fc" id="L301">    }</span>
+
+    /**
+     * Modify the logic and position of drawable objects to simulate movement and
+     * motion.
+     */
+    public void updateLogic() {
+<span class="fc" id="L308">        tick();</span>
+
+<span class="fc bfc" id="L310" title="All 2 branches covered.">        if (getCurrentFireball() != null) {</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">            if (getCurrentFireball().isAttacking() == true) {</span>
+<span class="fc" id="L312">                getCurrentFireball().updateLogic();</span>
+                // time = 0;
+
+            } else {
+<span class="fc bfc" id="L316" title="All 2 branches covered.">                if (time &gt; 60) {</span>
+<span class="fc" id="L317">                    nextFireball();</span>
+<span class="fc" id="L318">                    time = 0;</span>
+                }
+            }
+        }
+
+<span class="fc" id="L323">    }</span>
+
+    /**
+     * Draw objects to the window.
+     * 
+     * @param app the PApplet representing the game window.
+     */
+    public void draw(PApplet app) {
+<span class="fc" id="L331">        app.image(getTowerImage(), xPixels, yPixels);</span>
+
+        // Tower Modifications
+<span class="fc bfc" id="L334" title="All 2 branches covered.">        if (rangeOs != 0) {</span>
+<span class="fc bfc" id="L335" title="All 2 branches covered.">            for (int i = 0; i &lt; Math.min(rangeOs, 6); i++) {</span>
+<span class="fc" id="L336">                app.fill(204, 27, 0);</span>
+<span class="fc" id="L337">                app.textSize(8);</span>
+<span class="fc" id="L338">                app.text('O', xPixels + (5 * i), yPixels + 5);</span>
+            }
+        }
+
+<span class="fc bfc" id="L342" title="All 2 branches covered.">        if (damageXs != 0) {</span>
+<span class="fc bfc" id="L343" title="All 2 branches covered.">            for (int i = 0; i &lt; Math.min(damageXs, 6); i++) {</span>
+<span class="fc" id="L344">                app.fill(204, 27, 0);</span>
+<span class="fc" id="L345">                app.textSize(8);</span>
+<span class="fc" id="L346">                app.text('X', xPixels + (5 * i), yPixels + 32);</span>
+            }
+        }
+
+<span class="fc bfc" id="L350" title="All 2 branches covered.">        if (firingSpeedSquares != 0) {</span>
+<span class="fc" id="L351">            app.noFill();</span>
+<span class="fc" id="L352">            app.strokeWeight(Math.min(1 + (firingSpeedSquares * (float) 0.5), 4));</span>
+<span class="fc" id="L353">            app.stroke(124, 180, 255);</span>
+<span class="fc" id="L354">            app.rect(xPixels + 5, yPixels + 5, 21, 21);</span>
+        }
+
+<span class="fc bfc" id="L357" title="All 2 branches covered.">        if (displayRange) {</span>
+<span class="fc" id="L358">            app.noFill();</span>
+<span class="fc" id="L359">            app.strokeWeight(2);</span>
+<span class="fc" id="L360">            app.stroke(256, 231, 58);</span>
+<span class="fc" id="L361">            app.ellipse(xPixels + CELLSIZE / 2, yPixels + CELLSIZE / 2, range * 2, range * 2);</span>
+        }
+
+<span class="fc bfc" id="L364" title="All 2 branches covered.">        if (getCurrentFireball() != null) {</span>
+<span class="fc" id="L365">            getCurrentFireball().draw(app);</span>
+        }
+<span class="fc" id="L367">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

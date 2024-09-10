@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="WizardTD.UserActionTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-10-27T12:44:25" hostname="liam-macbook.shared.sydney.edu.au" time="3.5">
+  <properties/>
+  <testcase name="validUpgrades()" classname="WizardTD.UserActionTest" time="2.204"/>
+  <testcase name="mouseMovmentBehaviour()" classname="WizardTD.UserActionTest" time="1.296"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Warning: the fonts "Times" and "Lucida Bright" are not available for the Java logical font "Serif", which may have unexpected appearance or behavior. Re-enable the "Times" font to remove this warning.
+Warning: the fonts "Times" and "Lucida Bright" are not available for the Java logical font "Serif", which may have unexpected appearance or behavior. Re-enable the "Times" font to remove this warning.
+]]></system-err>
+</testsuite>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ToolTip.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.infopanes</a> &gt; <span class="el_source">ToolTip.java</span></div><h1>ToolTip.java</h1><pre class="source lang-java linenums">package WizardTD.infopanes;
+
+import WizardTD.board.towers.Tower;
+import WizardTD.utils.Drawable;
+import processing.core.PApplet;
+
+public class ToolTip implements Drawable {
+    private int xPos;
+    private int yPos;
+
+    private boolean show;
+    private float cost;
+
+    /**
+     * Determine which tool tip, if any, ought to be shown and determine the
+     * contents of the text
+     * 
+     * @param player an object Player representing the player playing the current
+     *               game.
+     * @param button the button over which the player's mouse is hovering.
+     */
+<span class="fc" id="L22">    public ToolTip(Player player, Button button) {</span>
+<span class="fc" id="L23">        this.xPos = Button.getXPosition();</span>
+<span class="fc" id="L24">        this.yPos = button.getYPosition();</span>
+
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (button.getName() == &quot;BUILD TOWER&quot;) {</span>
+<span class="fc" id="L27">            this.cost = Tower.getBuildCost();</span>
+<span class="fc" id="L28">            this.show = true;</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        } else if (button.getName() == &quot;MANA POOL SPELL&quot;) {</span>
+<span class="fc" id="L30">            this.cost = player.getManaPoolCost();</span>
+<span class="fc" id="L31">            this.show = true;</span>
+        } else {
+<span class="nc" id="L33">            this.show = false;</span>
+        }
+
+<span class="fc" id="L36">    }</span>
+
+    /**
+     * @return A boolean indicating whether the tool tip is currently being drawn.
+     */
+    public boolean isShowing() {
+<span class="nc" id="L42">        return show;</span>
+    }
+
+    public void updateLogic() {
+        // nothing required
+<span class="nc" id="L47">    }</span>
+
+    /**
+     * Draw objects to the window.
+     * 
+     * @param app the PApplet representing the game window.
+     */
+    public void draw(PApplet app) {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (!show) {</span>
+<span class="nc" id="L56">            return;</span>
+        }
+<span class="fc" id="L58">        int widthAdjustment = 0;</span>
+
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (cost &gt; 999) {</span>
+<span class="nc" id="L61">            widthAdjustment = 5;</span>
+        }
+
+<span class="fc" id="L64">        app.fill(255);</span>
+<span class="fc" id="L65">        app.strokeWeight(1);</span>
+<span class="fc" id="L66">        app.rect(xPos - 65 - widthAdjustment, yPos, 55 + (widthAdjustment * (float) 1.25), 15);</span>
+
+<span class="fc" id="L68">        app.fill(0);</span>
+<span class="fc" id="L69">        app.textSize(11);</span>
+<span class="fc" id="L70">        app.text(&quot;Cost: &quot; + (int) cost, xPos - 65 + 2 - widthAdjustment, yPos + 12);</span>
+<span class="fc" id="L71">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

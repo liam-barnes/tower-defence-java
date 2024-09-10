@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventSchedule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.game.events</a> &gt; <span class="el_source">EventSchedule.java</span></div><h1>EventSchedule.java</h1><pre class="source lang-java linenums">package WizardTD.game.events;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class EventSchedule {
+<span class="fc" id="L7">    private Queue&lt;Event&gt; schedule = new LinkedList&lt;&gt;();</span>
+
+    private int numberOfEvents;
+
+    /**
+     * Initalises the event schedule.
+     */
+<span class="fc" id="L14">    public EventSchedule() {</span>
+<span class="fc" id="L15">        this.numberOfEvents = 0;</span>
+<span class="fc" id="L16">    }</span>
+
+    /**
+     * Adds final event of functionally infinite duration to event schedule to allow
+     * the game to continue more easily even if there are no further events.
+     */
+    public void finaliseSchedule() {
+<span class="fc" id="L23">        schedule.add(new LastEvent());</span>
+<span class="fc" id="L24">        numberOfEvents = schedule.size();</span>
+<span class="fc" id="L25">    }</span>
+
+    public void updateNumberOfEvents(int count) {
+<span class="nc" id="L28">        numberOfEvents = count;</span>
+<span class="nc" id="L29">    }</span>
+
+    /**
+     * Adds a specified event to occur after all existing events to the event
+     * schedule.
+     * 
+     * @param event the event to be added to the schedule.
+     */
+    public void scheduleEvent(Event event) {
+<span class="fc" id="L38">        schedule.add(event);</span>
+<span class="fc" id="L39">        numberOfEvents = schedule.size();</span>
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * @return An integer representing the number of events that will take place
+     *         throughout the course of the game.
+     */
+    public int getNumberOfEvents() {
+<span class="fc" id="L47">        return numberOfEvents - 1;</span>
+    }
+
+    /**
+     * @return The next event in the schedule.
+     */
+    public Event getNextEvent() {
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        if (schedule.size() &gt; 0) {</span>
+<span class="fc" id="L55">            return schedule.remove();</span>
+        } else {
+<span class="nc" id="L57">            return null;</span>
+        }
+
+    }
+
+    /**
+     * Retrive the current event.
+     * 
+     * @return The event taking place or if no event is currently taking place (ie
+     *         pre-event pause), the event that is about to begin.
+     */
+    public Event getEvent() {
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (schedule.size() &gt; 0) {</span>
+<span class="fc" id="L70">            return schedule.peek();</span>
+        } else {
+<span class="nc" id="L72">            return null;</span>
+        }
+    }
+
+    /**
+     * Finds the time between the end of the previous event and the beginning of the
+     * current/next event.
+     * 
+     * @return the duration of the pause between the last two events.
+     */
+    public int getNextPauseDuration() {
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (schedule.size() &gt; 0) {</span>
+<span class="fc" id="L84">            return schedule.peek().getPauseDuration();</span>
+        } else {
+<span class="nc" id="L86">            return 0;</span>
+        }
+    }
+
+    public int getPauseDuration() {
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (schedule.size() != 0) {</span>
+<span class="fc" id="L92">            return schedule.peek().getPauseDuration();</span>
+        } else {
+<span class="nc" id="L94">            return 0;</span>
+        }
+    }
+
+    /**
+     * @return The duration of the current event or if there is no current event the
+     *         event next to begin.
+     */
+    public int getEventDuration() {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (schedule.size() != 0) {</span>
+<span class="fc" id="L104">            return schedule.peek().getDuration();</span>
+        } else {
+<span class="nc" id="L106">            return 0;</span>
+        }
+
+    }
+
+    /**
+     * Exposes the queue of events that represents the event schedule.
+     * 
+     * @return The queue of events that is the core of the event schedule.
+     */
+    public Queue&lt;Event&gt; getSchedule() {
+<span class="fc" id="L117">        return schedule;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

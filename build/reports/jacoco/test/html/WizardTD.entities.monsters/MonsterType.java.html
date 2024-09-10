@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonsterType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.entities.monsters</a> &gt; <span class="el_source">MonsterType.java</span></div><h1>MonsterType.java</h1><pre class="source lang-java linenums">package WizardTD.entities.monsters;
+
+public class MonsterType {
+    private String monsterRace;
+
+    private float maxHealth;
+    private float speed;
+    private float armour;
+    private float manaGainOnKill;
+    private int quantity;
+
+    public MonsterType(String monsterRace, int quantity, float maxHealth, float speed, float armour,
+<span class="fc" id="L13">            float manaGainOnKill) {</span>
+<span class="fc" id="L14">        this.monsterRace = monsterRace;</span>
+<span class="fc" id="L15">        this.maxHealth = maxHealth;</span>
+<span class="fc" id="L16">        this.speed = speed;</span>
+<span class="fc" id="L17">        this.armour = armour;</span>
+<span class="fc" id="L18">        this.manaGainOnKill = manaGainOnKill;</span>
+<span class="fc" id="L19">        this.quantity = quantity;</span>
+<span class="fc" id="L20">    }</span>
+
+<span class="fc" id="L22">    public MonsterType(MonsterType monsterType) {</span>
+<span class="fc" id="L23">        this.monsterRace = monsterType.getMonsterRace();</span>
+<span class="fc" id="L24">        this.maxHealth = monsterType.getMaxHealth();</span>
+<span class="fc" id="L25">        this.speed = monsterType.getSpeed();</span>
+<span class="fc" id="L26">        this.armour = monsterType.getArmour();</span>
+<span class="fc" id="L27">        this.manaGainOnKill = monsterType.getManaGainOnKill();</span>
+<span class="fc" id="L28">        this.quantity = monsterType.getQuantity();</span>
+<span class="fc" id="L29">    }</span>
+
+    public void decrementQuantity() {
+<span class="fc" id="L32">        quantity = quantity - 1;</span>
+<span class="fc" id="L33">    }</span>
+
+    public String getMonsterRace() {
+<span class="fc" id="L36">        return monsterRace;</span>
+    }
+
+    public int getQuantity() {
+<span class="fc" id="L40">        return quantity;</span>
+    }
+
+    public float getMaxHealth() {
+<span class="fc" id="L44">        return maxHealth;</span>
+    }
+
+    public float getSpeed() {
+<span class="fc" id="L48">        return speed;</span>
+    }
+
+    public float getArmour() {
+<span class="fc" id="L52">        return armour;</span>
+    }
+
+    public float getManaGainOnKill() {
+<span class="fc" id="L56">        return manaGainOnKill;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

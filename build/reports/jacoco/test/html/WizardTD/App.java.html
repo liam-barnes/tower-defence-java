@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">package WizardTD;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
+import processing.event.MouseEvent;
+
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+
+import java.io.*;
+import java.util.*;
+
+import static WizardTD.utils.Dimensions.*;
+
+import WizardTD.infopanes.Button;
+import WizardTD.infopanes.Player;
+import WizardTD.utils.ImageLoader;
+
+import WizardTD.board.Board;
+import WizardTD.board.Tile;
+import WizardTD.board.towers.Tower;
+import WizardTD.entities.projectiles.Fireball;
+import WizardTD.game.Game;
+import WizardTD.game.GameLoader;
+
+public class App extends PApplet {
+
+    public static final int FPS = 60;
+
+    public String configPath;
+
+    Player player;
+    Game game;
+    Board board;
+
+<span class="fc" id="L39">    public App() {</span>
+<span class="fc" id="L40">        this.configPath = &quot;config.json&quot;;</span>
+<span class="fc" id="L41">    }</span>
+
+    public void setConfigPath(String path) {
+<span class="fc" id="L44">        this.configPath = path;</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * Initialise the setting of the window size.
+     */
+    @Override
+    public void settings() {
+<span class="fc" id="L52">        size(WIDTH, HEIGHT);</span>
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Load all resources such as images. Initialise the elements such as the
+     * player, enemies and map elements.
+     */
+
+    @Override
+    public void setup() {
+<span class="fc" id="L62">        frameRate(FPS);</span>
+
+<span class="fc" id="L64">        ImageLoader images = new ImageLoader(this);</span>
+<span class="fc" id="L65">        images.reloadImages();</span>
+
+<span class="fc" id="L67">        GameLoader gl = new GameLoader(loadJSONObject(configPath));</span>
+<span class="fc" id="L68">        Fireball.setFireballImage(ImageLoader.getImage(&quot;src/main/resources/WizardTD/fireball.png&quot;));</span>
+
+<span class="fc" id="L70">        board = new Board(gl.getLayoutPath());</span>
+<span class="fc" id="L71">        board.constructBoard(this);</span>
+
+<span class="fc" id="L73">        game = new Game(board);</span>
+<span class="fc" id="L74">        player = game.getPlayer();</span>
+
+<span class="fc" id="L76">        game.createEventSchedule(gl.getEventSchedule());</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * Receive key pressed signal from the keyboard.
+     */
+    @Override
+    public void keyPressed() {
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (key == 'r') {</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">            if (game.getGameState() != &quot;ONGOING&quot;) {</span>
+<span class="fc" id="L86">                setup();</span>
+            }
+        }
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (!player.isAlive()) {</span>
+<span class="nc" id="L91">            return;</span>
+        }
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (key == 'p') {</span>
+<span class="fc" id="L95">            game.getPlayer().togglePauseState();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        } else if (key == 'f') {</span>
+<span class="fc" id="L97">            game.getPlayer().toggleFastForwardState();</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        } else if (key == 't') {</span>
+<span class="fc" id="L99">            game.getPlayer().toggleBuildModeState();</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        } else if (key == '1') {</span>
+<span class="fc" id="L101">            game.getPlayer().toggleUpgradeRangeModeState();</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        } else if (key == '2') {</span>
+<span class="fc" id="L103">            game.getPlayer().toggleUpgradeSpeedModeState();</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        } else if (key == '3') {</span>
+<span class="fc" id="L105">            game.getPlayer().toggleUpgradeDamageModeState();</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">        } else if (key == 'm') {</span>
+<span class="fc" id="L107">            game.getPlayer().useManaPoolSpell();</span>
+        }
+<span class="fc" id="L109">    }</span>
+
+    /**
+     * Receive key released signal from the keyboard.
+     */
+    @Override
+    public void keyReleased() {
+
+<span class="nc" id="L117">    }</span>
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+<span class="nc" id="L122">    }</span>
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (!player.isAlive()) {</span>
+<span class="nc" id="L127">            return;</span>
+        }
+
+<span class="fc bfc" id="L130" title="All 4 branches covered.">        if (e.getY() &gt; 40 &amp;&amp; e.getX() &lt; WIDTH - SIDEBAR) {</span>
+<span class="fc" id="L131">            int xBoardLocation = (int) Math.floor(e.getX() / 32);</span>
+<span class="fc" id="L132">            int yBoardLocation = (int) Math.floor((e.getY() - TOPBAR) / 32);</span>
+
+<span class="fc" id="L134">            Tile currentTile = board.getTile(xBoardLocation, yBoardLocation);</span>
+
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">            if (game.getPlayer().isBuilding()) {</span>
+<span class="fc" id="L137">                game.buildTower(currentTile);</span>
+            }
+
+<span class="fc bfc" id="L140" title="All 2 branches covered.">            if (currentTile.hasTower()) {</span>
+<span class="fc" id="L141">                Tower currentTower = currentTile.getTower();</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">                if (player.isUpgradingDamage()) {</span>
+<span class="nc" id="L143">                    game.upgradeDamage(currentTower);</span>
+                }
+
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">                if (player.isUpgradingRange()) {</span>
+<span class="nc" id="L147">                    game.upgradeRange(currentTower);</span>
+                }
+
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">                if (player.isUpgradingSpeed()) {</span>
+<span class="nc" id="L151">                    game.upgradeFiringSpeed(currentTower);</span>
+
+                }
+
+            }
+
+<span class="pc bpc" id="L157" title="1 of 4 branches missed.">        } else if (e.getX() &gt; Button.getXPosition() &amp;&amp; e.getX() &lt; Button.getXPosition() + Button.getButtonWidth()) {</span>
+<span class="fc" id="L158">            Button[] buttons = player.getButtons();</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            for (int i = 0; i &lt; buttons.length; i++) {</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">                if (e.getY() &gt; buttons[i].getYPosition()</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">                        &amp;&amp; e.getY() &lt; buttons[i].getYPosition() + Button.getButtonHeight()) {</span>
+<span class="fc" id="L162">                    buttons[i].action();</span>
+                }
+            }
+        }
+
+<span class="fc" id="L167">    }</span>
+
+<span class="fc" id="L169">    private Tile prevHoverTile = null;</span>
+<span class="fc" id="L170">    private Button prevButton = null;</span>
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+<span class="fc bfc" id="L174" title="All 4 branches covered.">        if (e.getY() &gt; 40 &amp;&amp; e.getX() &lt; WIDTH - SIDEBAR) {</span>
+<span class="fc" id="L175">            int xBoardLocation = (int) Math.floor(e.getX() / 32);</span>
+<span class="fc" id="L176">            int yBoardLocation = (int) Math.floor((e.getY() - TOPBAR) / 32);</span>
+
+<span class="fc" id="L178">            Tile currentTile = board.getTile(xBoardLocation, yBoardLocation);</span>
+
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">            if (currentTile != prevHoverTile) {</span>
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">                if (prevHoverTile != null) {</span>
+<span class="nc" id="L182">                    prevHoverTile.getTower().toggleDisplayRange();</span>
+<span class="nc" id="L183">                    game.getPlayer().hideUpgradeDisplay();</span>
+<span class="nc" id="L184">                    prevHoverTile = null;</span>
+                }
+
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">                if (currentTile.getTower() != null) {</span>
+<span class="fc" id="L188">                    prevHoverTile = currentTile;</span>
+<span class="fc" id="L189">                    currentTile.getTower().toggleDisplayRange();</span>
+<span class="fc" id="L190">                    game.getPlayer().showUpgradeDisplay(currentTile.getTower());</span>
+                }
+            }
+<span class="pc bpc" id="L193" title="1 of 4 branches missed.">        } else if (e.getX() &gt; Button.getXPosition() &amp;&amp; e.getX() &lt; Button.getXPosition() + Button.getButtonWidth()) {</span>
+<span class="fc" id="L194">            Button[] buttons = player.getButtons();</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">            for (int i = 0; i &lt; buttons.length; i++) {</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                if (e.getY() &gt; buttons[i].getYPosition()</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">                        &amp;&amp; e.getY() &lt; buttons[i].getYPosition() + Button.getButtonHeight()) {</span>
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">                    if (prevButton != buttons[i]) {</span>
+<span class="fc" id="L199">                        game.getPlayer().showToolTip(buttons[i]);</span>
+                    }
+                    break;
+                } else {
+<span class="fc" id="L203">                    game.getPlayer().hideToolTip();</span>
+                }
+            }
+<span class="fc" id="L206">        } else {</span>
+<span class="fc" id="L207">            game.getPlayer().hideToolTip();</span>
+<span class="fc" id="L208">            game.getPlayer().hideUpgradeDisplay();</span>
+        }
+<span class="fc" id="L210">    }</span>
+
+    public void updateLogic() {
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        if (player.isFastforwarding()) {</span>
+<span class="fc" id="L214">            game.updateLogic();</span>
+        }
+<span class="fc" id="L216">        game.updateLogic();</span>
+
+<span class="fc" id="L218">    }</span>
+
+    /**
+     * Draw all elements in the game by current frame.
+     */
+    @Override
+    public void draw() {
+<span class="fc" id="L225">        updateLogic();</span>
+
+<span class="fc" id="L227">        game.draw(this);</span>
+
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        if (game.getGameState() != &quot;ONGOING&quot;) {</span>
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">            if (game.getGameState() == &quot;WIN&quot;) {</span>
+<span class="nc" id="L231">                textSize(60);</span>
+<span class="nc" id="L232">                text(&quot;You WIN!&quot;, 215, 200);</span>
+            } else {
+<span class="fc" id="L234">                textSize(60);</span>
+<span class="fc" id="L235">                text(&quot;You LOSE!&quot;, 200, 200);</span>
+            }
+<span class="fc" id="L237">            textSize(40);</span>
+<span class="fc" id="L238">            text(&quot;Press 'r' to restart.&quot;, 170, 250);</span>
+        }
+
+<span class="fc" id="L241">    }</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L244">        PApplet.main(&quot;WizardTD.App&quot;);</span>
+<span class="nc" id="L245">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

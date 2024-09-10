@@ -13,27 +13,35 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 
+import static WizardTD.utils.Dimensions.*;
+
+import WizardTD.infopanes.Button;
+import WizardTD.infopanes.Player;
+import WizardTD.utils.ImageLoader;
+
+import WizardTD.board.Board;
+import WizardTD.board.Tile;
+import WizardTD.board.towers.Tower;
+import WizardTD.entities.projectiles.Fireball;
+import WizardTD.game.Game;
+import WizardTD.game.GameLoader;
+
 public class App extends PApplet {
-
-    public static final int CELLSIZE = 32;
-    public static final int SIDEBAR = 120;
-    public static final int TOPBAR = 40;
-    public static final int BOARD_WIDTH = 20;
-
-    public static int WIDTH = CELLSIZE * BOARD_WIDTH + SIDEBAR;
-    public static int HEIGHT = BOARD_WIDTH * CELLSIZE + TOPBAR;
 
     public static final int FPS = 60;
 
     public String configPath;
 
-    public Random random = new Random();
-
-    // Feel free to add any additional methods or attributes you want. Please put
-    // classes in different files.
+    Player player;
+    Game game;
+    Board board;
 
     public App() {
         this.configPath = "config.json";
+    }
+
+    public void setConfigPath(String path) {
+        this.configPath = path;
     }
 
     /**
@@ -48,18 +56,24 @@ public class App extends PApplet {
      * Load all resources such as images. Initialise the elements such as the
      * player, enemies and map elements.
      */
-    private PImage tower;
 
     @Override
     public void setup() {
         frameRate(FPS);
 
-        // Load images during setup
-        // Eg:
-        tower = loadImage("src/main/resources/WizardTD/tower0.png");
-        // loadImage("src/main/resources/WizardTD/tower1.png");
-        // loadImage("src/main/resources/WizardTD/tower2.png");
+        ImageLoader images = new ImageLoader(this);
+        images.reloadImages();
 
+        GameLoader gameLoader = new GameLoader(loadJSONObject(configPath));
+        Fireball.setFireballImage(ImageLoader.getImage("src/main/resources/WizardTD/fireball.png"));
+
+        board = new Board(gameLoader.getLayoutPath());
+        board.constructBoard(this);
+
+        game = new Game(board);
+        player = game.getPlayer();
+
+        game.createEventSchedule(gameLoader.getEventSchedule());
     }
 
     /**
@@ -67,7 +81,31 @@ public class App extends PApplet {
      */
     @Override
     public void keyPressed() {
+        if (key == 'r') {
+            if (game.getGameState() != "ONGOING") {
+                setup();
+            }
+        }
 
+        if (!player.isAlive()) {
+            return;
+        }
+
+        if (key == 'p') {
+            game.getPlayer().togglePauseState();
+        } else if (key == 'f') {
+            game.getPlayer().toggleFastForwardState();
+        } else if (key == 't') {
+            game.getPlayer().toggleBuildModeState();
+        } else if (key == '1') {
+            game.getPlayer().toggleUpgradeRangeModeState();
+        } else if (key == '2') {
+            game.getPlayer().toggleUpgradeSpeedModeState();
+        } else if (key == '3') {
+            game.getPlayer().toggleUpgradeDamageModeState();
+        } else if (key == 'm') {
+            game.getPlayer().useManaPoolSpell();
+        }
     }
 
     /**
@@ -85,22 +123,120 @@ public class App extends PApplet {
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        if (!player.isAlive()) {
+            return;
+        }
+
+        if (e.getY() > 40 && e.getX() < WIDTH - SIDEBAR) {
+            int xBoardLocation = (int) Math.floor(e.getX() / 32);
+            int yBoardLocation = (int) Math.floor((e.getY() - TOPBAR) / 32);
+
+            Tile currentTile = board.getTile(xBoardLocation, yBoardLocation);
+
+            if (game.getPlayer().isBuilding()) {
+                game.buildTower(currentTile);
+            }
+
+            if (currentTile.hasTower()) {
+                Tower currentTower = currentTile.getTower();
+                if (player.isUpgradingDamage()) {
+                    game.upgradeDamage(currentTower);
+                }
+
+                if (player.isUpgradingRange()) {
+                    game.upgradeRange(currentTower);
+                }
+
+                if (player.isUpgradingSpeed()) {
+                    game.upgradeFiringSpeed(currentTower);
+
+                }
+
+            }
+
+        } else if (e.getX() > Button.getXPosition() && e.getX() < Button.getXPosition() + Button.getButtonWidth()) {
+            Button[] buttons = player.getButtons();
+            for (int i = 0; i < buttons.length; i++) {
+                if (e.getY() > buttons[i].getYPosition()
+                        && e.getY() < buttons[i].getYPosition() + Button.getButtonHeight()) {
+                    buttons[i].action();
+                }
+            }
+        }
 
     }
 
-    /*
-     * @Override
-     * public void mouseDragged(MouseEvent e) {
-     * 
-     * }
-     */
+    private Tile prevHoverTile = null;
+    private Button prevButton = null;
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        if (e.getY() > 40 && e.getX() < WIDTH - SIDEBAR) {
+            int xBoardLocation = (int) Math.floor(e.getX() / 32);
+            int yBoardLocation = (int) Math.floor((e.getY() - TOPBAR) / 32);
+
+            Tile currentTile = board.getTile(xBoardLocation, yBoardLocation);
+
+            if (currentTile != prevHoverTile) {
+                if (prevHoverTile != null) {
+                    prevHoverTile.getTower().toggleDisplayRange();
+                    game.getPlayer().hideUpgradeDisplay();
+                    prevHoverTile = null;
+                }
+
+                if (currentTile.getTower() != null) {
+                    prevHoverTile = currentTile;
+                    currentTile.getTower().toggleDisplayRange();
+                    game.getPlayer().showUpgradeDisplay(currentTile.getTower());
+                }
+            }
+        } else if (e.getX() > Button.getXPosition() && e.getX() < Button.getXPosition() + Button.getButtonWidth()) {
+            Button[] buttons = player.getButtons();
+            for (int i = 0; i < buttons.length; i++) {
+                if (e.getY() > buttons[i].getYPosition()
+                        && e.getY() < buttons[i].getYPosition() + Button.getButtonHeight()) {
+                    if (prevButton != buttons[i]) {
+                        game.getPlayer().showToolTip(buttons[i]);
+                    }
+                    break;
+                } else {
+                    game.getPlayer().hideToolTip();
+                }
+            }
+        } else {
+            game.getPlayer().hideToolTip();
+            game.getPlayer().hideUpgradeDisplay();
+        }
+    }
+
+    public void updateLogic() {
+        if (player.isFastforwarding()) {
+            game.updateLogic();
+        }
+        game.updateLogic();
+
+    }
 
     /**
      * Draw all elements in the game by current frame.
      */
     @Override
     public void draw() {
-        image(tower, 20, 0);
+        updateLogic();
+
+        game.draw(this);
+
+        if (game.getGameState() != "ONGOING") {
+            if (game.getGameState() == "WIN") {
+                textSize(60);
+                text("You WIN!", 215, 200);
+            } else {
+                textSize(60);
+                text("You LOSE!", 200, 200);
+            }
+            textSize(40);
+            text("Press 'r' to restart.", 170, 250);
+        }
 
     }
 
@@ -108,44 +244,4 @@ public class App extends PApplet {
         PApplet.main("WizardTD.App");
     }
 
-    /**
-     * Source:
-     * https://stackoverflow.com/questions/37758061/rotate-a-buffered-image-in-java
-     * 
-     * @param pimg  The image to be rotated
-     * @param angle between 0 and 360 degrees
-     * @return the new rotated image
-     */
-    public PImage rotateImageByDegrees(PImage pimg, double angle) {
-        BufferedImage img = (BufferedImage) pimg.getNative();
-        double rads = Math.toRadians(angle);
-        double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
-        int w = img.getWidth();
-        int h = img.getHeight();
-        int newWidth = (int) Math.floor(w * cos + h * sin);
-        int newHeight = (int) Math.floor(h * cos + w * sin);
-
-        PImage result = this.createImage(newWidth, newHeight, ARGB);
-        // BufferedImage rotated = new BufferedImage(newWidth, newHeight,
-        // BufferedImage.TYPE_INT_ARGB);
-        BufferedImage rotated = (BufferedImage) result.getNative();
-        Graphics2D g2d = rotated.createGraphics();
-        AffineTransform at = new AffineTransform();
-        at.translate((newWidth - w) / 2, (newHeight - h) / 2);
-
-        int x = w / 2;
-        int y = h / 2;
-
-        at.rotate(rads, x, y);
-        g2d.setTransform(at);
-        g2d.drawImage(img, 0, 0, null);
-        g2d.dispose();
-        for (int i = 0; i < newWidth; i++) {
-            for (int j = 0; j < newHeight; j++) {
-                result.set(i, j, rotated.getRGB(i, j));
-            }
-        }
-
-        return result;
-    }
 }

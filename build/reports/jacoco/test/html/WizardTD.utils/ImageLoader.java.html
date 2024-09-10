@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ImageLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.utils</a> &gt; <span class="el_source">ImageLoader.java</span></div><h1>ImageLoader.java</h1><pre class="source lang-java linenums">package WizardTD.utils;
+
+import java.util.HashMap;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+
+public class ImageLoader {
+<span class="fc" id="L9">    private static HashMap&lt;String, PImage&gt; images = new HashMap&lt;&gt;();</span>
+    private PApplet app;
+
+<span class="fc" id="L12">    private static String[] imagePaths = { &quot;src/main/resources/WizardTD/beetle.png&quot;,</span>
+            &quot;src/main/resources/WizardTD/fireball.png&quot;, &quot;src/main/resources/WizardTD/grass.png&quot;,
+            &quot;src/main/resources/WizardTD/gremlin.png&quot;, &quot;src/main/resources/WizardTD/gremlin1.png&quot;,
+            &quot;src/main/resources/WizardTD/gremlin2.png&quot;, &quot;src/main/resources/WizardTD/gremlin3.png&quot;,
+            &quot;src/main/resources/WizardTD/gremlin4.png&quot;, &quot;src/main/resources/WizardTD/gremlin5.png&quot;,
+            &quot;src/main/resources/WizardTD/path0.png&quot;, &quot;src/main/resources/WizardTD/path1.png&quot;,
+            &quot;src/main/resources/WizardTD/path2.png&quot;, &quot;src/main/resources/WizardTD/path3.png&quot;,
+            &quot;src/main/resources/WizardTD/shrub.png&quot;, &quot;src/main/resources/WizardTD/tower0.png&quot;,
+            &quot;src/main/resources/WizardTD/tower1.png&quot;, &quot;src/main/resources/WizardTD/tower2.png&quot;,
+            &quot;src/main/resources/WizardTD/wizard_house.png&quot;, &quot;src/main/resources/WizardTD/worm.png&quot; };
+
+    /**
+     * Loads all of the images into the currrent game for the first time.
+     * 
+     * @param app the PApplet representing the game.
+     */
+<span class="fc" id="L28">    public ImageLoader(PApplet app) {</span>
+<span class="fc" id="L29">        this.app = app;</span>
+
+<span class="fc" id="L31">        reloadImages();</span>
+<span class="fc" id="L32">    }</span>
+
+    /**
+     * Reload images from there file paths.
+     */
+    public void reloadImages() {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        for (int i = 0; i &lt; imagePaths.length; i++) {</span>
+<span class="fc" id="L39">            images.put(imagePaths[i], app.loadImage(imagePaths[i]));</span>
+        }
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Generate empty images to prevent crashing even if certain game images cannot
+     * load.
+     */
+    public static void generateEmptyImages() {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        for (int i = 0; i &lt; imagePaths.length; i++) {</span>
+<span class="nc" id="L49">            images.put(imagePaths[i], new PImage(0, 0));</span>
+        }
+<span class="nc" id="L51">    }</span>
+
+    /**
+     * Retrive an image from all of the images that have been loaded into the game.
+     * 
+     * @param path a String of the relative file path to the image which acts as its
+     *             identifier within this class.
+     * @return A PImage object of the selected image.
+     */
+    public static PImage getImage(String path) {
+<span class="fc" id="L61">        return images.get(path);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

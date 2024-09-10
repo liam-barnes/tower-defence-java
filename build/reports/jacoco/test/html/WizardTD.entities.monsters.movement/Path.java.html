@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Path.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.entities.monsters.movement</a> &gt; <span class="el_source">Path.java</span></div><h1>Path.java</h1><pre class="source lang-java linenums">package WizardTD.entities.monsters.movement;
+
+import WizardTD.board.Tile;
+import WizardTD.board.Tile.TileType;
+import WizardTD.board.Board;
+
+import java.util.Queue;
+import java.util.HashMap;
+import java.util.LinkedList;
+
+import static WizardTD.utils.Dimensions.*;
+
+public class Path {
+    private Board board;
+<span class="fc" id="L15">    private Queue&lt;PathEdge&gt; searchQueue = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L16">    private HashMap&lt;Tile, Tile&gt; tileMapping = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L17">    private Queue&lt;Tile&gt; path = new LinkedList&lt;&gt;();</span>
+
+    private Tile initialTile;
+
+    /**
+     * Finds and creates optimal path to wizard house from the specified tile on the
+     * current game board.
+     * 
+     * @param board       the current game board.
+     * @param initialTile the tile from which to search for the optimal path.
+     */
+<span class="fc" id="L28">    public Path(Board board, Tile initialTile) {</span>
+<span class="fc" id="L29">        this.board = board;</span>
+<span class="fc" id="L30">        this.initialTile = initialTile;</span>
+
+<span class="fc" id="L32">        resetTraversalState();</span>
+<span class="fc" id="L33">        generatePath();</span>
+<span class="fc" id="L34">    }</span>
+
+    // public Path(Board board) {
+    // this.board = board;
+
+    // resetTraversalState();
+
+    // getRandomInitialTile();
+    // generatePath();
+
+    // Queue&lt;Tile&gt; copyPathQueue = board.getRandomPath().getPathToCopy();
+    // for (Tile tile : copyPathQueue) {
+    // path.add(tile);
+    // }
+    // }
+
+    /**
+     * Returns a copy of an existing path as a new object such that it can be used
+     * by another monster.
+     * 
+     * @param board        the current game board.
+     * @param existingPath an existing path to copy.
+     */
+<span class="fc" id="L57">    public Path(Board board, Path existingPath) {</span>
+<span class="fc" id="L58">        this.board = board;</span>
+
+<span class="fc" id="L60">        Queue&lt;Tile&gt; existingPathQueue = existingPath.getPathToCopy();</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (Tile tile : existingPathQueue) {</span>
+<span class="fc" id="L63">            path.add(tile);</span>
+<span class="fc" id="L64">        }</span>
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Iterates through every tile in the game board matrix and sets the traversal
+     * state to false in preparation for another path finding operation.
+     */
+    public void resetTraversalState() {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        for (int i = 0; i &lt; BOARD_DIM; i++) {</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            for (int j = 0; j &lt; BOARD_DIM; j++) {</span>
+<span class="fc" id="L74">                board.getTile(i, j).setTraversed(false);</span>
+            }
+        }
+
+<span class="fc" id="L78">    }</span>
+
+    /**
+     * Retrives the raw queue of tiles typically for the purpose of copying a path.
+     * 
+     * @return Exposes the queue of tiles that constitutes the path
+     */
+    public Queue&lt;Tile&gt; getPathToCopy() {
+<span class="fc" id="L86">        return path;</span>
+    }
+
+    /**
+     * @param checkTile the tile to verify.
+     * @return A boolean indicating whether to continue the search from this path.
+     */
+    private static boolean checkValidPathTile(Tile checkTile) {
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (checkTile.isTraversed() == false) {</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            if (checkTile.getTileType() == TileType.PATH) {</span>
+<span class="fc" id="L96">                return true;</span>
+            }
+        }
+
+<span class="fc" id="L100">        return false;</span>
+    }
+
+    /**
+     * Uses breadth-first search to find the optimal path from a given starting
+     * location to the Wizard House.
+     */
+    public void generatePath() {
+<span class="fc" id="L108">        Tile startTile = null;</span>
+
+<span class="fc" id="L110">        searchQueue.add(new PathEdge(board.getWizardHouse(), null));</span>
+
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        while (searchQueue.size() &gt; 0) {</span>
+<span class="fc" id="L113">            PathEdge currentEdge = searchQueue.remove();</span>
+
+<span class="fc" id="L115">            Tile currentTile = currentEdge.getToTile();</span>
+<span class="fc" id="L116">            int xLocation = currentTile.getXLocation();</span>
+<span class="fc" id="L117">            int yLocation = currentTile.getYLocation();</span>
+
+<span class="fc" id="L119">            currentTile.setTraversed(true);</span>
+
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            if (!tileMapping.containsKey(currentTile)) {</span>
+<span class="fc" id="L122">                tileMapping.put(currentTile, currentEdge.getFromTile());</span>
+            }
+
+<span class="fc bfc" id="L125" title="All 4 branches covered.">            if (xLocation == initialTile.getXLocation() &amp;&amp; yLocation == initialTile.getYLocation()) {</span>
+<span class="fc" id="L126">                startTile = initialTile;</span>
+<span class="fc" id="L127">                break;</span>
+            }
+
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">            if (xLocation &lt; BOARD_DIM - 1) {</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">                if (checkValidPathTile(board.getTile(xLocation + 1, yLocation))) {</span>
+<span class="fc" id="L132">                    PathEdge tmpEdge = new PathEdge(board.getTile(xLocation + 1, yLocation), currentTile);</span>
+<span class="fc" id="L133">                    searchQueue.add(tmpEdge);</span>
+                }
+            }
+
+<span class="fc bfc" id="L137" title="All 2 branches covered.">            if (xLocation != 0) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                if (checkValidPathTile(board.getTile(xLocation - 1, yLocation))) {</span>
+<span class="fc" id="L139">                    PathEdge tmpEdge = new PathEdge(board.getTile(xLocation - 1, yLocation), currentTile);</span>
+<span class="fc" id="L140">                    searchQueue.add(tmpEdge);</span>
+                }
+            }
+
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">            if (yLocation &lt; BOARD_DIM - 1) {</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">                if (checkValidPathTile(board.getTile(xLocation, yLocation + 1))) {</span>
+<span class="fc" id="L146">                    PathEdge tmpEdge = new PathEdge(board.getTile(xLocation, yLocation + 1), currentTile);</span>
+<span class="fc" id="L147">                    searchQueue.add(tmpEdge);</span>
+                }
+            }
+
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">            if (yLocation != 0) {</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">                if (checkValidPathTile(board.getTile(xLocation, yLocation - 1))) {</span>
+<span class="fc" id="L153">                    PathEdge tmpEdge = new PathEdge(board.getTile(xLocation, yLocation - 1), currentTile);</span>
+<span class="fc" id="L154">                    searchQueue.add(tmpEdge);</span>
+                }
+            }
+
+<span class="fc" id="L158">        }</span>
+
+<span class="fc" id="L160">        path.add(startTile);</span>
+<span class="fc" id="L161">        Tile goTo = tileMapping.get(startTile);</span>
+
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        while (goTo != null) {</span>
+<span class="fc" id="L164">            path.add(goTo);</span>
+<span class="fc" id="L165">            goTo = tileMapping.get(goTo);</span>
+        }
+<span class="fc" id="L167">    }</span>
+
+    /**
+     * Retrives without removing the next tile in the path queue.
+     * 
+     * @return The next tile in the path.
+     */
+    public Tile viewNextTile() {
+        try {
+<span class="fc" id="L176">            return path.element();</span>
+<span class="nc" id="L177">        } catch (Exception e) {</span>
+<span class="nc" id="L178">            return null;</span>
+        }
+
+    }
+
+    /**
+     * Removes the tile at the front of the queue, thereby exposing the next tile.
+     * 
+     * @return The tile at the front of the path queue.
+     */
+    public Tile moveToNextTile() {
+        try {
+<span class="fc" id="L190">            return path.remove();</span>
+<span class="nc" id="L191">        } catch (Exception e) {</span>
+<span class="nc" id="L192">            return null;</span>
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

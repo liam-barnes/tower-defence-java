@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.game</a> &gt; <span class="el_source">GameLoader.java</span></div><h1>GameLoader.java</h1><pre class="source lang-java linenums">package WizardTD.game;
+
+import java.util.ArrayList;
+
+import WizardTD.board.towers.Tower;
+import WizardTD.entities.monsters.MonsterType;
+import WizardTD.game.events.EndlessEventSchedule;
+import WizardTD.game.events.EventSchedule;
+import WizardTD.game.events.WaveEvent;
+import WizardTD.infopanes.Player;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
+
+public class GameLoader {
+    JSONObject config;
+
+<span class="fc" id="L17">    private EventSchedule schedule = new EventSchedule();</span>
+
+    private String layoutPath;
+
+    private float initialTowerRange;
+    private float initialTowerFiringSpeed;
+    private float initialTowerDamage;
+
+    private int initialMana;
+    private int initialManaCap;
+    private int initialManaGainedPerSecond;
+
+    private float towerCost;
+
+    private float manaPoolSpellInitialCost;
+    private float manaPoolSpellCostIncreasePerUse;
+    private float manaPoolSpellCapMultiplier;
+    private float manaPoolSpellManaGainedMultiplier;
+
+    private JSONArray wavesArray;
+    // private ArrayList&lt;JSONObject&gt; waveObjects
+
+    /**
+     * Retrives all preset values from the config file and sets all the default
+     * values into the relevant classes as is appropriate.
+     * 
+     * @param config a JSONObject representing the config file for the game.
+     */
+<span class="fc" id="L45">    public GameLoader(JSONObject config) {</span>
+<span class="fc" id="L46">        this.config = config;</span>
+
+<span class="fc" id="L48">        this.layoutPath = config.getString(&quot;layout&quot;);</span>
+
+        // Load Constants
+<span class="fc" id="L51">        this.initialTowerRange = config.getFloat(&quot;initial_tower_range&quot;);</span>
+<span class="fc" id="L52">        this.initialTowerFiringSpeed = config.getFloat(&quot;initial_tower_firing_speed&quot;);</span>
+<span class="fc" id="L53">        this.initialTowerDamage = config.getFloat(&quot;initial_tower_damage&quot;);</span>
+<span class="fc" id="L54">        this.towerCost = config.getFloat(&quot;tower_cost&quot;);</span>
+<span class="fc" id="L55">        Tower.setInitialProperties(initialTowerDamage, initialTowerRange, initialTowerFiringSpeed, towerCost);</span>
+
+<span class="fc" id="L57">        this.initialMana = config.getInt(&quot;initial_mana&quot;);</span>
+<span class="fc" id="L58">        this.initialManaCap = config.getInt(&quot;initial_mana_cap&quot;);</span>
+<span class="fc" id="L59">        this.initialManaGainedPerSecond = config.getInt(&quot;initial_mana_gained_per_second&quot;);</span>
+
+<span class="fc" id="L61">        this.manaPoolSpellInitialCost = config.getFloat(&quot;mana_pool_spell_initial_cost&quot;);</span>
+<span class="fc" id="L62">        this.manaPoolSpellCostIncreasePerUse = config.getFloat(&quot;mana_pool_spell_cost_increase_per_use&quot;);</span>
+<span class="fc" id="L63">        this.manaPoolSpellCapMultiplier = config.getFloat(&quot;mana_pool_spell_cap_multiplier&quot;);</span>
+<span class="fc" id="L64">        this.manaPoolSpellManaGainedMultiplier = config.getFloat(&quot;mana_pool_spell_mana_gained_multiplier&quot;);</span>
+
+<span class="fc" id="L66">        Player.setInitialProperties(initialMana, initialManaCap, initialManaGainedPerSecond, manaPoolSpellCapMultiplier,</span>
+                manaPoolSpellManaGainedMultiplier, manaPoolSpellInitialCost, manaPoolSpellCostIncreasePerUse);
+
+        // Load Waves
+<span class="fc" id="L70">        this.wavesArray = config.getJSONArray(&quot;waves&quot;);</span>
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (config.hasKey(&quot;endless&quot;)) {</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">            if (config.getBoolean(&quot;endless&quot;)) {</span>
+<span class="nc" id="L74">                schedule = new EndlessEventSchedule();</span>
+<span class="nc" id="L75">                return;</span>
+            }
+        }
+
+        // waves.size();
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        for (int i = 0; i &lt; wavesArray.size(); i++) {</span>
+<span class="fc" id="L81">            JSONObject currentWave = wavesArray.getJSONObject(i);</span>
+
+            // Get Monter Type Array
+<span class="fc" id="L84">            ArrayList&lt;MonsterType&gt; monsters = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L85">            JSONArray waveMonstersArray = currentWave.getJSONArray(&quot;monsters&quot;);</span>
+
+<span class="fc bfc" id="L87" title="All 2 branches covered.">            for (int j = 0; j &lt; waveMonstersArray.size(); j++) {</span>
+<span class="fc" id="L88">                JSONObject currentMonster = waveMonstersArray.getJSONObject(j);</span>
+
+<span class="fc" id="L90">                String monsterRace = currentMonster.getString(&quot;type&quot;);</span>
+<span class="fc" id="L91">                float monsterMaxHealth = currentMonster.getFloat(&quot;hp&quot;);</span>
+<span class="fc" id="L92">                float monsterSpeed = currentMonster.getFloat(&quot;speed&quot;);</span>
+<span class="fc" id="L93">                float monsterArmour = currentMonster.getFloat(&quot;armour&quot;);</span>
+<span class="fc" id="L94">                float monsterManaGain = currentMonster.getFloat(&quot;mana_gained_on_kill&quot;);</span>
+<span class="fc" id="L95">                int monsterQuantity = currentMonster.getInt(&quot;quantity&quot;);</span>
+
+<span class="fc" id="L97">                monsters.add(</span>
+                        new MonsterType(monsterRace, monsterQuantity, monsterMaxHealth, monsterSpeed, monsterArmour,
+                                monsterManaGain));
+            }
+
+            // Get details
+<span class="fc" id="L103">            int pause = currentWave.getInt(&quot;pre_wave_pause&quot;);</span>
+<span class="fc" id="L104">            int duration = currentWave.getInt(&quot;duration&quot;);</span>
+
+            // create and store event
+<span class="fc" id="L107">            schedule.scheduleEvent(new WaveEvent(pause, duration, monsters));</span>
+        }
+<span class="fc" id="L109">        schedule.finaliseSchedule();</span>
+<span class="fc" id="L110">    }</span>
+
+    public EventSchedule getEventSchedule() {
+<span class="fc" id="L113">        return schedule;</span>
+    }
+
+    public String getLayoutPath() {
+<span class="fc" id="L117">        return layoutPath;</span>
+    }
+
+    public float getInitialTowerRange() {
+<span class="nc" id="L121">        return initialTowerRange;</span>
+    }
+
+    public float getInitialTowerFiringSpeed() {
+<span class="nc" id="L125">        return initialTowerFiringSpeed;</span>
+    }
+
+    public float getInitialTowerDamage() {
+<span class="nc" id="L129">        return initialTowerDamage;</span>
+    }
+
+    public float getInitialMana() {
+<span class="nc" id="L133">        return initialMana;</span>
+    }
+
+    public float getInitialManaCap() {
+<span class="nc" id="L137">        return initialManaCap;</span>
+    }
+
+    public float getInitialManaGainedPerSecond() {
+<span class="nc" id="L141">        return initialManaGainedPerSecond;</span>
+    }
+
+    public float getTowerCost() {
+<span class="nc" id="L145">        return towerCost;</span>
+    }
+
+    public float getManaPoolSpellInitialCost() {
+<span class="nc" id="L149">        return manaPoolSpellInitialCost;</span>
+    }
+
+    public float getManaPoolSpellCostIncreasePerUse() {
+<span class="nc" id="L153">        return manaPoolSpellCostIncreasePerUse;</span>
+    }
+
+    public float getManaPoolSpellCapMultiplier() {
+<span class="nc" id="L157">        return manaPoolSpellCapMultiplier;</span>
+    }
+
+    public float getManaPoolSpellManaGainedMultiplier() {
+<span class="nc" id="L161">        return manaPoolSpellManaGainedMultiplier;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

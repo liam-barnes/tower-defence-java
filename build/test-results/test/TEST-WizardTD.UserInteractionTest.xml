@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="WizardTD.UserInteractionTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2023-10-27T12:44:28" hostname="liam-macbook.shared.sydney.edu.au" time="5.385">
+  <properties/>
+  <testcase name="firmMouseInteraction()" classname="WizardTD.UserInteractionTest" time="1.168"/>
+  <testcase name="keyboardInteraction()" classname="WizardTD.UserInteractionTest" time="1.293"/>
+  <testcase name="failedTowerBuild()" classname="WizardTD.UserInteractionTest" time="1.33"/>
+  <testcase name="softMouseInteraction()" classname="WizardTD.UserInteractionTest" time="1.592"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

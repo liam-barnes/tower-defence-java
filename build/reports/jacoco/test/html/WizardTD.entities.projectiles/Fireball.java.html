@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Fireball.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.entities.projectiles</a> &gt; <span class="el_source">Fireball.java</span></div><h1>Fireball.java</h1><pre class="source lang-java linenums">package WizardTD.entities.projectiles;
+
+import WizardTD.board.towers.Tower;
+import WizardTD.entities.monsters.Monster;
+
+import WizardTD.utils.Drawable;
+import processing.core.PApplet;
+import processing.core.PImage;
+
+import static WizardTD.utils.Dimensions.*;
+
+public class Fireball implements Drawable {
+    private static PImage fireballImage;
+
+    private Tower originTower;
+    private Monster targetMonster;
+
+    private double xPos;
+    private double yPos;
+
+<span class="fc" id="L21">    private double speed = 7;</span>
+
+    private boolean attacking;
+
+    /**
+     * Initalise a new fireball to prepare it to begin attacking a monster.
+     * 
+     * @param originTower   the tower from which the Fireball is fired.
+     * @param targetMonster the monster the Fireball is trying to hit.
+     */
+<span class="fc" id="L31">    public Fireball(Tower originTower, Monster targetMonster) {</span>
+<span class="fc" id="L32">        this.originTower = originTower;</span>
+<span class="fc" id="L33">        this.targetMonster = targetMonster;</span>
+
+<span class="fc" id="L35">        this.speed = originTower.getFiringSpeed();</span>
+
+<span class="fc" id="L37">        xPos = (double) originTower.getXPixels() + 16;</span>
+<span class="fc" id="L38">        yPos = (double) originTower.getYPixels() + 16;</span>
+
+<span class="fc" id="L40">        this.attacking = true;</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Seta an image for all fireballs that will attack monsters throughout the
+     * game.
+     * 
+     * @param fbImage the sprite for the fireball.
+     */
+    public static void setFireballImage(PImage fbImage) {
+<span class="fc" id="L50">        fireballImage = fbImage;</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * @return a boolean indicating whether the fireball is currently attempting to
+     *         damage a monster.
+     */
+    public boolean isAttacking() {
+<span class="fc" id="L58">        return attacking;</span>
+    }
+
+    /**
+     * Modify the logic and position of drawable objects to simulate movement and
+     * motion.
+     */
+    public void updateLogic() {
+<span class="pc bpc" id="L66" title="1 of 4 branches missed.">        if (xPos &gt; targetMonster.getXPixels() &amp;&amp; xPos &lt; targetMonster.getXPixels() + 32) {</span>
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">            if (yPos &gt; targetMonster.getYPixels() &amp;&amp; yPos &lt; targetMonster.getYPixels() + 32) {</span>
+<span class="fc" id="L68">                attacking = false;</span>
+<span class="fc" id="L69">                targetMonster.damageMonster(originTower.getDamage());</span>
+            }
+
+<span class="pc bpc" id="L72" title="5 of 8 branches missed.">            if (xPos &lt; 0 || yPos &lt; 0 || xPos &gt; BOARD_WIDTH || yPos &gt; HEIGHT) {</span>
+<span class="fc" id="L73">                attacking = false;</span>
+            }
+        }
+<span class="fc" id="L76">        double angleAdjustment = 0;</span>
+<span class="fc" id="L77">        double convertRad = Math.PI / 180;</span>
+
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (yPos - targetMonster.getYPixels() &lt; 0) {</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            if (xPos - targetMonster.getXPixels() &lt;= 0) {</span>
+                // angleAdjustment = 0;
+            } else {
+<span class="fc" id="L83">                angleAdjustment = 90 * convertRad;</span>
+            }
+        } else {
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            if (xPos - targetMonster.getXPixels() &lt; 0) {</span>
+<span class="fc" id="L87">                angleAdjustment = 270 * convertRad;</span>
+            } else {
+<span class="fc" id="L89">                angleAdjustment = 180 * convertRad;</span>
+            }
+        }
+
+<span class="fc" id="L93">        double oppositeLength = Math.abs(targetMonster.getYPixels() - yPos);</span>
+<span class="fc" id="L94">        double adjacentLength = Math.abs(targetMonster.getXPixels() - xPos);</span>
+<span class="fc" id="L95">        double angle = Math.atan(oppositeLength / adjacentLength) + angleAdjustment;</span>
+
+        // System.out.println(angle * 180 / Math.PI);
+
+<span class="fc" id="L99">        xPos = xPos + Math.cos(angle) * speed;</span>
+<span class="fc" id="L100">        yPos = yPos + Math.sin(angle) * speed;</span>
+<span class="fc" id="L101">    }</span>
+
+    /**
+     * Draw objects to the window.
+     * 
+     * @param app the PApplet representing the game window.
+     */
+    public void draw(PApplet app) {
+        // add check for if in contact with the target monster)
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (attacking) {</span>
+<span class="fc" id="L111">            app.image(fireballImage, (float) xPos, (float) yPos);</span>
+        }
+
+<span class="fc" id="L114">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WaveEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.game.events</a> &gt; <span class="el_source">WaveEvent.java</span></div><h1>WaveEvent.java</h1><pre class="source lang-java linenums">package WizardTD.game.events;
+
+import processing.core.PApplet;
+import WizardTD.entities.monsters.Monster;
+import WizardTD.entities.monsters.MonsterType;
+import WizardTD.entities.monsters.movement.Path;
+
+import static WizardTD.utils.Dimensions.FPS;
+
+import java.util.ArrayList;
+
+public class WaveEvent extends Event {
+    private int time;
+    private int interval;
+
+<span class="fc" id="L16">    ArrayList&lt;MonsterType&gt; monsterTypes = new ArrayList&lt;&gt;();</span>
+
+    /**
+     * Establishs the timing and contents of the monster wave.
+     * 
+     * @param pause        the duration of the pause before the event begins.
+     * @param duration     the length of the event.
+     * @param monsterTypes an ArrayList containing all of the types of monsters to
+     *                     be spawned during the wave.
+     */
+    public WaveEvent(int pause, int duration, ArrayList&lt;MonsterType&gt; monsterTypes) {
+<span class="fc" id="L27">        super(pause * FPS, duration * FPS);</span>
+
+<span class="fc" id="L29">        this.monsterTypes = monsterTypes;</span>
+<span class="fc" id="L30">        int quantity = 0;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        for (MonsterType mt : monsterTypes) {</span>
+<span class="fc" id="L32">            quantity += mt.getQuantity();</span>
+<span class="fc" id="L33">        }</span>
+
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if (quantity == 0) {</span>
+<span class="fc" id="L36">            quantity = 1;</span>
+        }
+
+<span class="fc" id="L39">        this.interval = Math.floorDiv(super.getDuration(), quantity);</span>
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * Retrive all of the monster types that still need to be spawned during the
+     * remaining portion of the event.
+     * 
+     * @return An ArrayList of MonsterType containing monsters stil to be spawned.
+     */
+    public ArrayList&lt;MonsterType&gt; getMonsterTypes() {
+<span class="nc" id="L49">        return monsterTypes;</span>
+    }
+
+    /**
+     * Updates the internal event time.
+     */
+    private void tick() {
+<span class="fc" id="L56">        time++;</span>
+<span class="fc" id="L57">    }</span>
+
+<span class="fc" id="L59">    private int i = 0;</span>
+
+    public void action(PApplet app) {
+<span class="fc" id="L62">        tick();</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (time % interval == 0) {</span>
+
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">            if (monsterTypes.get(i).getQuantity() &lt; 1) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">                if (monsterTypes.size() - 1 == i) {</span>
+<span class="nc" id="L68">                    return;</span>
+                }
+<span class="nc" id="L70">                i++;</span>
+            }
+
+<span class="fc" id="L73">            Path tmpPath = new Path(super.getGame().getBoard(), super.getGame().getBoard().getRandomPath());</span>
+<span class="fc" id="L74">            Monster monster = new Monster(monsterTypes.get(i), tmpPath);</span>
+
+<span class="fc" id="L76">            super.getGame().addMonster(monster);</span>
+
+<span class="fc" id="L78">            monsterTypes.get(i).decrementQuantity();</span>
+        }
+
+<span class="fc" id="L81">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

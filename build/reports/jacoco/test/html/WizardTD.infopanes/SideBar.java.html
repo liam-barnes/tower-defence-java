@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SideBar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.infopanes</a> &gt; <span class="el_source">SideBar.java</span></div><h1>SideBar.java</h1><pre class="source lang-java linenums">package WizardTD.infopanes;
+
+import processing.core.PApplet;
+
+import static WizardTD.utils.Dimensions.*;
+
+public class SideBar {
+    Button[] buttons;
+    Player player;
+
+    /**
+     * Creates all of the required buttons with the appropriate descriptors.
+     * 
+     * @param player the current player of the game
+     */
+<span class="fc" id="L16">    public SideBar(Player player) {</span>
+<span class="fc" id="L17">        buttons = new Button[] {</span>
+                new Button(player, &quot;FASTFORWARD&quot;, &quot;FF&quot;, &quot;2x Speed&quot;),
+                new Button(player, &quot;PAUSE&quot;, &quot;P&quot;, &quot;PAUSE&quot;),
+                new Button(player, &quot;BUILD TOWER&quot;, &quot;T&quot;, &quot;Build Tower&quot;),
+                new Button(player, &quot;UPGRADE RANGE&quot;, &quot;U1&quot;, &quot;Upgrade Range&quot;),
+                new Button(player, &quot;UPGRADE SPEED&quot;, &quot;U2&quot;, &quot;Upgrade Speed&quot;),
+                new Button(player, &quot;UPGRADE DAMAGE&quot;, &quot;U3&quot;, &quot;Upgrade Damage&quot;),
+                new Button(player, &quot;MANA POOL SPELL&quot;, &quot;M&quot;, &quot;Mana Pool Spell&quot;),
+        };
+
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Retrive the buttons array
+     * 
+     * @return All of the created buttons.
+     */
+    public Button[] getButtons() {
+<span class="fc" id="L35">        return buttons;</span>
+    }
+
+    public void updateLogic() {
+
+<span class="nc" id="L40">    }</span>
+
+    /**
+     * Draw objects to the window.
+     * 
+     * @param app the PApplet representing the game window.
+     */
+    public void draw(PApplet app) {
+        // Create sidebar
+<span class="fc" id="L49">        app.noStroke();</span>
+<span class="fc" id="L50">        app.fill(132, 115, 74); // app.fill(132, 115, 74);</span>
+<span class="fc" id="L51">        app.rect(WIDTH - SIDEBAR, TOPBAR, SIDEBAR, HEIGHT);</span>
+
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        for (int i = 0; i &lt; buttons.length; i++) {</span>
+<span class="fc" id="L54">            buttons[i].setIndex(i);</span>
+<span class="fc" id="L55">            buttons[i].draw(app);</span>
+        }
+<span class="fc" id="L57">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Game.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.game</a> &gt; <span class="el_source">Game.java</span></div><h1>Game.java</h1><pre class="source lang-java linenums">package WizardTD.game;
+
+import WizardTD.utils.Drawable;
+import processing.core.PApplet;
+
+import java.util.ArrayList;
+
+import WizardTD.board.Board;
+import WizardTD.board.Tile;
+import WizardTD.board.towers.Tower;
+import WizardTD.entities.monsters.Monster;
+import WizardTD.entities.projectiles.Fireball;
+import WizardTD.game.events.Event;
+import WizardTD.game.events.EventSchedule;
+import WizardTD.infopanes.Player;
+
+/**
+ * The core class that handles all of the game logic and object interaction.
+ */
+public class Game implements Drawable {
+    private Board board;
+    private Player player;
+
+    private int waveNumber;
+    private int time;
+    private int eventTime;
+
+    private String gameState;
+
+    PApplet window;
+
+<span class="fc" id="L32">    private ArrayList&lt;Tower&gt; towers = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L33">    private ArrayList&lt;Monster&gt; monsters = new ArrayList&lt;&gt;();</span>
+    private EventSchedule schedule;
+
+    /**
+     * Initialise the game, setting defaults and creating a player for the game.
+     * 
+     * @param board the game board for this game.
+     */
+<span class="fc" id="L41">    public Game(Board board) {</span>
+<span class="fc" id="L42">        this.board = board;</span>
+<span class="fc" id="L43">        this.player = new Player(this);</span>
+
+<span class="fc" id="L45">        this.time = 0;</span>
+<span class="fc" id="L46">        this.eventTime = 0;</span>
+<span class="fc" id="L47">        this.waveNumber = 0;</span>
+
+<span class="fc" id="L49">        this.gameState = &quot;ONGOING&quot;;</span>
+
+<span class="fc" id="L51">        Event.setGame(this);</span>
+        // this.schedule = schedule;
+<span class="fc" id="L53">    }</span>
+
+    /**
+     * Attach an event schedule to be following in this game.
+     * 
+     * @param schedule the event schedule for this game.
+     */
+    public void createEventSchedule(EventSchedule schedule) {
+<span class="fc" id="L61">        this.schedule = schedule;</span>
+<span class="fc" id="L62">    }</span>
+
+    /**
+     * Determine if the current player can afford and is able to build a tower on
+     * the proposed tile, and if they are build the tower.
+     * 
+     * @param tile the tile upon which the new tower is proposed to be built.
+     */
+    public void buildTower(Tile tile) {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (player.getMana() &gt; Tower.getBuildCost()) {</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            if (player.isAlive()) {</span>
+<span class="fc" id="L73">                tile.buildTower(new Tower(tile.getXPixels(), tile.getYPixels()));</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                if (tile.hasTower()) {</span>
+<span class="fc" id="L75">                    towers.add(tile.getTower());</span>
+<span class="fc" id="L76">                    player.purchaseUpgrade(Tower.getBuildCost());</span>
+                }
+            }
+        }
+
+<span class="fc" id="L81">    }</span>
+
+    /**
+     * @return An ArrayList of monsters that are currently attacking the player.
+     */
+    public ArrayList&lt;Monster&gt; getMonsters() {
+<span class="nc" id="L87">        return monsters;</span>
+    }
+
+    /**
+     * Add a monster to the roster of monsters currently attacking the player.
+     * 
+     * @param monster the Monster to be added.
+     */
+    public void addMonster(Monster monster) {
+<span class="fc" id="L96">        monsters.add(monster);</span>
+<span class="fc" id="L97">    }</span>
+
+    /**
+     * Determine if the player can afford to upgrade the tower's range, and if so
+     * upgrade the tower's range.
+     * 
+     * @param tower the tower to which the upgrade will be applied
+     * @return A boolean indicating whether the upgrade was successful.
+     */
+    public boolean upgradeRange(Tower tower) {
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (player.getMana() &gt; tower.getRangeUpgradeCost()) {</span>
+<span class="fc" id="L108">            player.purchaseUpgrade(tower.getRangeUpgradeCost());</span>
+<span class="fc" id="L109">            tower.upgradeRange();</span>
+<span class="fc" id="L110">            return true;</span>
+        }
+<span class="fc" id="L112">        return false;</span>
+    }
+
+    /**
+     * Determine if the player can afford to upgrade the tower's damage, and if so
+     * upgrade the tower's damage.
+     * 
+     * @param tower the tower to which the upgrade will be applied
+     * @return A boolean indicating whether the upgrade was successful.
+     */
+    public boolean upgradeDamage(Tower tower) {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        if (player.getMana() &gt; tower.getDamageUpgradeCost()) {</span>
+<span class="fc" id="L124">            player.purchaseUpgrade(tower.getDamageUpgradeCost());</span>
+<span class="fc" id="L125">            tower.upgradeDamage();</span>
+<span class="fc" id="L126">            return true;</span>
+        }
+<span class="fc" id="L128">        return false;</span>
+    }
+
+    /**
+     * Determine if the player can afford to upgrade the tower's firing speed, and
+     * if so upgrade the tower's firing speed.
+     * 
+     * @param tower the tower to which the upgrade will be applied
+     * @return A boolean indicating whether the upgrade was successful.
+     */
+    public boolean upgradeFiringSpeed(Tower tower) {
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        if (player.getMana() &gt; tower.getFiringSpeedUpgradeCost()) {</span>
+<span class="fc" id="L140">            player.purchaseUpgrade(tower.getFiringSpeedUpgradeCost());</span>
+<span class="fc" id="L141">            tower.upgradeFiringSpeed();</span>
+<span class="fc" id="L142">            return true;</span>
+        }
+<span class="fc" id="L144">        return false;</span>
+    }
+
+    /**
+     * @return The count of the number of waves that have passed plus one.
+     */
+    public String getNextWaveNumber() {
+<span class="fc" id="L151">        return &quot;&quot; + (waveNumber + 2);</span>
+    }
+
+    /**
+     * @return If there is a subsequent event, returns the number of seconds until
+     *         that event begins.
+     */
+    public String getTimeUntilNextEvent() {
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        if (waveNumber + 1 &gt;= schedule.getNumberOfEvents()) {</span>
+<span class="nc" id="L160">            return &quot;&quot;;</span>
+        } else {
+<span class="fc" id="L162">            int displayTime = Math.round(((float) schedule.getEventDuration() - (float) eventTime) / 60);</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">            if (displayTime &gt;= 0) {</span>
+<span class="fc" id="L164">                return &quot;&quot; + displayTime;</span>
+            } else {
+<span class="nc" id="L166">                return &quot;&quot;;</span>
+            }
+
+        }
+    }
+
+    /**
+     * @return The current game state.
+     */
+    public String getGameState() {
+<span class="fc" id="L176">        return gameState;</span>
+    }
+
+    /**
+     * @return The number of ticks that have passed during the current event.
+     */
+    public int getEventTime() {
+<span class="nc" id="L183">        return eventTime;</span>
+    }
+
+    /**
+     * @return The the boad object representing the board upon which this game is
+     *         being played.
+     */
+    public Board getBoard() {
+<span class="fc" id="L191">        return board;</span>
+    }
+
+    /**
+     * @return The player object representing the player playing this game.
+     */
+    public Player getPlayer() {
+<span class="fc" id="L198">        return player;</span>
+    }
+
+    /**
+     * Increment internal timers.
+     */
+    public void tick() {
+<span class="fc" id="L205">        eventTime++;</span>
+<span class="fc" id="L206">        time++;</span>
+<span class="fc" id="L207">    }</span>
+
+    /**
+     * Modify the logic and position of drawable objects to simulate movement and
+     * motion.
+     */
+    public void updateLogic() {
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        if (!player.isAlive()) {</span>
+<span class="fc" id="L215">            gameState = &quot;LOSE&quot;;</span>
+<span class="fc" id="L216">            return;</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        } else if (player.isPaused()) {</span>
+<span class="fc" id="L218">            player.updateLogic();</span>
+<span class="fc" id="L219">            return;</span>
+        }
+
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">        if (waveNumber == schedule.getNumberOfEvents()) {</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            if (monsters.size() == 0) {</span>
+<span class="nc" id="L224">                gameState = &quot;WIN&quot;;</span>
+            }
+        }
+
+<span class="fc" id="L228">        tick();</span>
+<span class="fc" id="L229">        player.updateLogic();</span>
+
+<span class="fc bfc" id="L231" title="All 2 branches covered.">        if (time % 60 == 0) {</span>
+<span class="fc" id="L232">            player.updateMana(player.getManaGainRate());</span>
+        }
+
+        // System.out.println(&quot;Wav No: &quot; + waveNumber + &quot; Num Events: &quot; +
+        // schedule.getNumberOfEvents());
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        if (eventTime &gt; schedule.getPauseDuration() + schedule.getEventDuration()) {</span>
+<span class="fc" id="L238">            eventTime = 0;</span>
+
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">            if (waveNumber &lt; schedule.getNumberOfEvents()) {</span>
+<span class="fc" id="L241">                waveNumber++;</span>
+            }
+
+<span class="fc" id="L244">            schedule.getNextEvent();</span>
+        }
+
+<span class="fc" id="L247">        ArrayList&lt;Monster&gt; monstersToRemove = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        for (Monster monster : monsters) {</span>
+<span class="fc" id="L249">            monster.updateLogic();</span>
+
+<span class="fc bfc" id="L251" title="All 2 branches covered.">            if (monster.isAlive() == false) {</span>
+<span class="fc" id="L252">                monstersToRemove.add(monster);</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">            } else if (monster.attackedWizardHouse()) {</span>
+<span class="nc" id="L254">                player.updateMana(-1 * (int) monster.getHealth());</span>
+
+<span class="nc" id="L256">                monster.resetAttackedWizardHouse();</span>
+<span class="nc" id="L257">                monster.setPath(board.getRandomPath());</span>
+            }
+<span class="fc" id="L259">        }</span>
+
+<span class="fc bfc" id="L261" title="All 2 branches covered.">        for (Monster monster : monstersToRemove) {</span>
+<span class="fc" id="L262">            monsters.remove(monster);</span>
+<span class="fc" id="L263">            player.updateMana(monster.getManaGainOnKill());</span>
+<span class="fc" id="L264">        }</span>
+
+<span class="fc bfc" id="L266" title="All 2 branches covered.">        for (Tower tower : towers) {</span>
+<span class="fc" id="L267">            tower.updateLogic();</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">            if (tower.getCurrentFireball() != null) {</span>
+<span class="fc" id="L269">                continue;</span>
+            }
+
+<span class="fc bfc" id="L272" title="All 2 branches covered.">            for (Monster monster : monsters) {</span>
+<span class="fc" id="L273">                double monsterTowerDistance = Math.abs(monster.getXPixels() - tower.getXPixels())</span>
+<span class="fc" id="L274">                        + Math.abs(monster.getYPixels() - tower.getYPixels());</span>
+
+<span class="fc bfc" id="L276" title="All 2 branches covered.">                if (monsterTowerDistance &lt;= tower.getRange()) {</span>
+<span class="fc" id="L277">                    tower.createFireball(new Fireball(tower, monster));</span>
+<span class="fc" id="L278">                    break;</span>
+
+                }
+<span class="fc" id="L281">            }</span>
+<span class="fc" id="L282">        }</span>
+<span class="fc" id="L283">    }</span>
+
+    /**
+     * Draw objects to the window.
+     * 
+     * @param app the PApplet representing the game window.
+     */
+    public void draw(PApplet app) {
+<span class="fc bfc" id="L291" title="All 2 branches covered.">        if (!player.isAlive()) {</span>
+            // gameState = &quot;LOSE&quot;;
+<span class="fc" id="L293">            player.draw(app);</span>
+<span class="fc" id="L294">            return;</span>
+        }
+
+<span class="fc" id="L297">        board.draw(app);</span>
+
+<span class="fc bfc" id="L299" title="All 2 branches covered.">        if (!player.isPaused()) {</span>
+<span class="fc bfc" id="L300" title="All 2 branches covered.">            if (eventTime &gt;= schedule.getNextPauseDuration()) {</span>
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">                if (schedule.getEvent() != null) {</span>
+<span class="fc" id="L302">                    schedule.getEvent().action(app);</span>
+                }
+            }
+        }
+
+        // Draw monstesr
+<span class="fc bfc" id="L308" title="All 2 branches covered.">        for (Monster monster : monsters) {</span>
+<span class="fc" id="L309">            monster.draw(app);</span>
+<span class="fc" id="L310">        }</span>
+
+        // Draw priority elements
+<span class="fc" id="L313">        board.getWizardHouse().draw(app);</span>
+
+<span class="fc bfc" id="L315" title="All 2 branches covered.">        for (Tower tower : towers) {</span>
+<span class="fc" id="L316">            tower.draw(app);</span>
+<span class="fc" id="L317">        }</span>
+
+<span class="fc" id="L319">        player.draw(app);</span>
+<span class="fc" id="L320">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

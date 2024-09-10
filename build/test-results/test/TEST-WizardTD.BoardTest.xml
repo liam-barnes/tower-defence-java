@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="WizardTD.BoardTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2023-10-27T12:44:25" hostname="liam-macbook.shared.sydney.edu.au" time="0.021">
+  <properties/>
+  <testcase name="getInvalidPath()" classname="WizardTD.BoardTest" time="0.003"/>
+  <testcase name="getGenuinePath()" classname="WizardTD.BoardTest" time="0.002"/>
+  <testcase name="createdPlayableBoard()" classname="WizardTD.BoardTest" time="0.002"/>
+  <testcase name="validWizardTower()" classname="WizardTD.BoardTest" time="0.004"/>
+  <testcase name="invalidWizardTower()" classname="WizardTD.BoardTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

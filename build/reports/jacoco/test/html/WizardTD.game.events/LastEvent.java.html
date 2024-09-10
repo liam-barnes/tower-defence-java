@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LastEvent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.game.events</a> &gt; <span class="el_source">LastEvent.java</span></div><h1>LastEvent.java</h1><pre class="source lang-java linenums">package WizardTD.game.events;
+
+import processing.core.PApplet;
+
+public class LastEvent extends Event {
+
+    /**
+     * Create event of maximum possible duration, during which noting occurs in
+     * order to allow the game to continue without any interuption despite there not
+     * being any future events..
+     */
+    public LastEvent() {
+<span class="fc" id="L13">        super(Integer.MAX_VALUE, Integer.MAX_VALUE);</span>
+<span class="fc" id="L14">    }</span>
+
+    public void action(PApplet app) {
+<span class="nc" id="L17">        return;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

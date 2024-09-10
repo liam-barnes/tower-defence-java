@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EndlessEventSchedule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.game.events</a> &gt; <span class="el_source">EndlessEventSchedule.java</span></div><h1>EndlessEventSchedule.java</h1><pre class="source lang-java linenums">package WizardTD.game.events;
+
+import java.util.ArrayList;
+import java.util.Queue;
+import java.util.Random;
+
+import WizardTD.entities.monsters.MonsterType;
+
+public class EndlessEventSchedule extends EventSchedule {
+    Queue&lt;Event&gt; schedule;
+
+    private double meanQuantity;
+    private double meanHealth;
+    private double meanSpeed;
+    private double meanArmour;
+    private double meanManaGain;
+
+    private double sdQuantity;
+    private double sdHealth;
+    private double sdSpeed;
+    private double sdArmour;
+    private double sdManaGain;
+
+    private double wormAdjustment;
+    private double beetleAdjustment;
+
+    private double statMultiplier;
+    private int waveCounter;
+
+    /**
+     * Establishs some reasonable starting points for each randomly generated
+     * monster type.
+     */
+    public EndlessEventSchedule() {
+<span class="fc" id="L35">        super();</span>
+<span class="fc" id="L36">        this.schedule = super.getSchedule();</span>
+
+<span class="fc" id="L38">        this.meanQuantity = 2;</span>
+<span class="fc" id="L39">        this.meanHealth = 100;</span>
+<span class="fc" id="L40">        this.meanSpeed = 1;</span>
+<span class="fc" id="L41">        this.meanArmour = 4;</span>
+<span class="fc" id="L42">        this.meanManaGain = 20;</span>
+
+<span class="fc" id="L44">        this.sdQuantity = 0.7;</span>
+<span class="fc" id="L45">        this.sdHealth = 20;</span>
+<span class="fc" id="L46">        this.sdSpeed = 0.2;</span>
+<span class="fc" id="L47">        this.sdArmour = 2;</span>
+<span class="fc" id="L48">        this.sdManaGain = 5;</span>
+
+<span class="fc" id="L50">        this.wormAdjustment = 2;</span>
+<span class="fc" id="L51">        this.beetleAdjustment = 5;</span>
+
+<span class="fc" id="L53">        this.statMultiplier = 1.3;</span>
+
+<span class="fc" id="L55">        this.waveCounter = 0;</span>
+
+<span class="fc" id="L57">        generateWave();</span>
+<span class="fc" id="L58">        generateWave();</span>
+<span class="fc" id="L59">        generateWave();</span>
+<span class="fc" id="L60">    }</span>
+
+    @Override
+    public void finaliseSchedule() {
+<span class="nc" id="L64">        return;</span>
+    }
+
+    /**
+     * @param val any double.
+     * @return a whole number similar to the inputted value.
+     */
+    private int whole(double val) {
+<span class="fc" id="L72">        return (int) val;</span>
+    }
+
+    /**
+     * Increases the base values from which the random monster characteristics are
+     * generated.
+     */
+    private void updateMultipliers() {
+<span class="nc" id="L80">        meanQuantity = 3 * statMultiplier;</span>
+<span class="nc" id="L81">        meanHealth = 100 * statMultiplier;</span>
+<span class="nc" id="L82">        meanSpeed = 1 * statMultiplier;</span>
+<span class="nc" id="L83">        meanArmour = 4 * statMultiplier;</span>
+<span class="nc" id="L84">        meanManaGain = 20 * statMultiplier;</span>
+
+<span class="nc" id="L86">        sdQuantity = 0.5 * statMultiplier;</span>
+<span class="nc" id="L87">        sdHealth = 20 * statMultiplier;</span>
+<span class="nc" id="L88">        sdSpeed = 0.2 * statMultiplier;</span>
+<span class="nc" id="L89">        sdArmour = 2 * statMultiplier;</span>
+<span class="nc" id="L90">        sdManaGain = 5 * statMultiplier;</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (waveCounter % 5 == 0) {</span>
+<span class="nc" id="L93">            statMultiplier += 0.1;</span>
+        }
+<span class="nc" id="L95">    }</span>
+
+    /**
+     * Creates a wave with monsters which have randomly generated characteristics
+     * and appends this wave to the end of the current schedule.
+     */
+    public void generateWave() {
+<span class="fc" id="L102">        ArrayList&lt;MonsterType&gt; monsters = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L103">        Random random = new Random();</span>
+
+<span class="fc" id="L105">        int quantityGremlin = whole(random.nextGaussian() * sdQuantity + meanQuantity);</span>
+<span class="fc" id="L106">        float speedGremlin = (float) (random.nextGaussian() * sdSpeed + meanSpeed);</span>
+<span class="fc" id="L107">        float maxHealthGremlin = (float) (random.nextGaussian() * sdHealth + meanHealth);</span>
+<span class="fc" id="L108">        float armourGremlin = (float) (random.nextGaussian() * sdArmour + meanArmour);</span>
+<span class="fc" id="L109">        float manaGainGremlin = whole(random.nextGaussian() * sdManaGain + meanManaGain);</span>
+
+<span class="fc" id="L111">        MonsterType gremlin = new MonsterType(&quot;gremlin&quot;, quantityGremlin, maxHealthGremlin, speedGremlin, armourGremlin,</span>
+                manaGainGremlin);
+
+<span class="fc" id="L114">        int quantityWorm = whole(random.nextGaussian() * sdQuantity + meanQuantity - wormAdjustment);</span>
+<span class="fc" id="L115">        float speedWorm = (float) (random.nextGaussian() * sdSpeed + meanSpeed);</span>
+<span class="fc" id="L116">        float maxHealthWorm = (float) (random.nextGaussian() * sdHealth + meanHealth);</span>
+<span class="fc" id="L117">        float armourWorm = (float) (random.nextGaussian() * sdArmour + meanArmour);</span>
+<span class="fc" id="L118">        float manaGainWorm = whole(random.nextGaussian() * sdManaGain + meanManaGain);</span>
+
+<span class="fc" id="L120">        MonsterType worm = new MonsterType(&quot;worm&quot;, quantityWorm, maxHealthWorm, speedWorm, armourWorm, manaGainWorm);</span>
+
+<span class="fc" id="L122">        int quantityBeetle = whole(random.nextGaussian() * sdQuantity + meanQuantity - beetleAdjustment);</span>
+<span class="fc" id="L123">        float speedBeetle = (float) (random.nextGaussian() * sdSpeed + meanSpeed);</span>
+<span class="fc" id="L124">        float maxHealthBeetle = (float) (random.nextGaussian() * sdHealth + meanHealth);</span>
+<span class="fc" id="L125">        float armourBeetle = (float) (random.nextGaussian() * sdArmour + meanArmour);</span>
+<span class="fc" id="L126">        float manaGainBeetle = whole(random.nextGaussian() * sdManaGain + meanManaGain);</span>
+
+<span class="fc" id="L128">        MonsterType beetle = new MonsterType(&quot;beetle&quot;, quantityBeetle, maxHealthBeetle, speedBeetle, armourBeetle,</span>
+                manaGainBeetle);
+
+<span class="fc" id="L131">        monsters.add(gremlin);</span>
+<span class="fc" id="L132">        monsters.add(worm);</span>
+<span class="fc" id="L133">        monsters.add(beetle);</span>
+
+<span class="fc" id="L135">        WaveEvent wave = new WaveEvent(1, 3, monsters);</span>
+<span class="fc" id="L136">        super.scheduleEvent(wave);</span>
+<span class="fc" id="L137">    }</span>
+
+    @Override
+    public Event getNextEvent() {
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        if (schedule.size() &gt; 0) {</span>
+<span class="nc" id="L142">            waveCounter++;</span>
+<span class="nc" id="L143">            generateWave();</span>
+<span class="nc" id="L144">            updateMultipliers();</span>
+<span class="nc" id="L145">            super.updateNumberOfEvents(waveCounter + 3);</span>
+<span class="nc" id="L146">            return super.getSchedule().remove();</span>
+        } else {
+<span class="nc" id="L148">            generateWave();</span>
+<span class="nc" id="L149">            generateWave();</span>
+<span class="nc" id="L150">            return super.getSchedule().remove();</span>
+        }
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.board</a> &gt; <span class="el_source">Tile.java</span></div><h1>Tile.java</h1><pre class="source lang-java linenums">package WizardTD.board;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+import WizardTD.utils.Drawable;
+import WizardTD.utils.ImageLoader;
+
+import static WizardTD.utils.Dimensions.*;
+
+import WizardTD.board.towers.Tower;
+
+public class Tile implements Drawable {
+<span class="fc" id="L13">    public static enum TileType {</span>
+<span class="fc" id="L14">        GRASS,</span>
+<span class="fc" id="L15">        SHRUB,</span>
+<span class="fc" id="L16">        PATH,</span>
+<span class="fc" id="L17">        WIZARDHOUSE,</span>
+<span class="fc" id="L18">        TOWER;</span>
+    }
+
+<span class="fc" id="L21">    public static enum PathType {</span>
+<span class="fc" id="L22">        INTERSECTION,</span>
+<span class="fc" id="L23">        JUNCTION,</span>
+<span class="fc" id="L24">        CORNER,</span>
+<span class="fc" id="L25">        LINEAR;</span>
+    }
+
+    private boolean walkable;
+
+    private int xLocation;
+    private int yLocation;
+
+    private TileType tileType;
+    private PathType pathType;
+    private PImage tileImage;
+    private PImage wizardGrassImage;
+
+<span class="fc" id="L38">    private Tower tileTower = null;</span>
+
+    private boolean traversed;
+
+    /**
+     * Assigning the inital tile type and initialising variables.
+     * 
+     * @param type      a character from the level file indicating the tile type.
+     * @param xLocation the x location of the tile in the board matrix.
+     * @param yLocation the y location of the tile in the board matrix.
+     */
+<span class="fc" id="L49">    public Tile(char type, int xLocation, int yLocation) {</span>
+<span class="fc" id="L50">        this.xLocation = xLocation;</span>
+<span class="fc" id="L51">        this.yLocation = yLocation;</span>
+
+<span class="fc" id="L53">        this.wizardGrassImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/grass.png&quot;);</span>
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (type == ' ') {</span>
+<span class="fc" id="L56">            tileType = TileType.GRASS;</span>
+<span class="fc" id="L57">            this.walkable = false;</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        } else if (type == 'S') {</span>
+<span class="fc" id="L59">            tileType = TileType.SHRUB;</span>
+<span class="fc" id="L60">            this.walkable = false;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        } else if (type == 'W') {</span>
+<span class="fc" id="L62">            tileType = TileType.WIZARDHOUSE;</span>
+<span class="fc" id="L63">            this.walkable = true;</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        } else if (type == 'X') {</span>
+<span class="fc" id="L65">            tileType = TileType.PATH;</span>
+<span class="fc" id="L66">            this.walkable = true;</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        } else if (type == 'T') {</span>
+<span class="fc" id="L68">            tileType = TileType.TOWER;</span>
+<span class="fc" id="L69">            this.walkable = false;</span>
+        }
+
+<span class="fc" id="L72">        this.traversed = false;</span>
+<span class="fc" id="L73">    }</span>
+
+    public void setTraversed(boolean state) {
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (state) {</span>
+<span class="fc" id="L77">            traversed = true;</span>
+        } else {
+<span class="fc" id="L79">            traversed = false;</span>
+        }
+<span class="fc" id="L81">    }</span>
+
+    protected void setPathType(PathType pathType) {
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (tileType == TileType.PATH) {</span>
+<span class="fc" id="L85">            this.pathType = pathType;</span>
+        } else {
+<span class="nc" id="L87">            return;</span>
+        }
+<span class="fc" id="L89">    }</span>
+
+    public void buildTower(Tower tileTower) {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (tileType == TileType.GRASS) {</span>
+<span class="fc" id="L93">            this.tileTower = tileTower;</span>
+<span class="fc" id="L94">            tileType = TileType.TOWER;</span>
+        }
+
+<span class="fc" id="L97">    }</span>
+
+    public void setTileImage(PImage image) {
+<span class="fc" id="L100">        tileImage = image;</span>
+<span class="fc" id="L101">    }</span>
+
+    public boolean hasTower() {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (tileTower == null) {</span>
+<span class="fc" id="L105">            return false;</span>
+        } else {
+<span class="fc" id="L107">            return true;</span>
+        }
+    }
+
+    public Tower getTower() {
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (tileTower == null) {</span>
+<span class="fc" id="L113">            return null;</span>
+        } else {
+<span class="fc" id="L115">            return tileTower;</span>
+        }
+    }
+
+    /**
+     * Retrives the traversal status (used for path finding).
+     * 
+     * @return A boolean notating whether the tile has been traversed.
+     */
+    public boolean isTraversed() {
+<span class="fc" id="L125">        return traversed;</span>
+    }
+
+    // protected PImage getTileImage() {
+    // return tileImage;
+    // }
+
+    /**
+     * Gets pathtype which describes the directionality of the path
+     * 
+     * @return The type of path.
+     */
+    protected PathType getPathType() {
+<span class="nc" id="L138">        return pathType;</span>
+    }
+
+    /**
+     * Gets the tiletype with describes some of the properties of the tile.
+     * 
+     * @return The type of tile.
+     */
+    public TileType getTileType() {
+<span class="fc" id="L147">        return tileType;</span>
+    }
+
+    /**
+     * Gets the x coordinate of the top left corner of the tile in pixels.
+     * 
+     * @return int of pixels rightward
+     */
+    public int getXPixels() {
+<span class="fc" id="L156">        return xLocation * CELLSIZE;</span>
+    }
+
+    /**
+     * Gets the y coordinate of the top left corner of the tile in pixels.
+     * 
+     * @return int of pixels downward
+     */
+    public int getYPixels() {
+<span class="fc" id="L165">        return TOPBAR + (32 * yLocation);</span>
+    }
+
+    /**
+     * Get the x coordinate in the game board matrix.
+     * 
+     * @return Number of tiles rightward
+     */
+    public int getXLocation() {
+<span class="fc" id="L174">        return xLocation;</span>
+    }
+
+    /**
+     * Gets the y coordinate in the game board matrix
+     * 
+     * @return Number of tiles downward
+     */
+    public int getYLocation() {
+<span class="fc" id="L183">        return yLocation;</span>
+    }
+
+    /**
+     * Used predominantly for banishing monsters and path finding.
+     * 
+     * @return A boolean indicates whether the tile is a Wizard House.
+     */
+    public boolean isWizardHouse() {
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">        if (this.tileType == TileType.WIZARDHOUSE) {</span>
+<span class="nc" id="L193">            return true;</span>
+        } else {
+<span class="fc" id="L195">            return false;</span>
+        }
+    }
+
+    /**
+     * Indicates whether monsters are able to walk on this tile.
+     * 
+     * @return a boolean indicating whether monsters can walk on this tile.
+     */
+    public boolean isWalkable() {
+<span class="fc" id="L205">        return walkable;</span>
+    }
+
+    public void updateLogic() {
+
+<span class="nc" id="L210">    }</span>
+
+    /**
+     * Draw objects to the window.
+     * 
+     * @param app the PApplet representing the game window.
+     */
+    public void draw(PApplet app) {
+<span class="fc" id="L218">        app.image(wizardGrassImage, getXPixels(), getYPixels());</span>
+<span class="fc" id="L219">        app.image(tileImage, getXPixels(), getYPixels());</span>
+
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        if (getTower() != null) {</span>
+            // return;
+<span class="fc" id="L223">            tileTower.draw(app);</span>
+        }
+
+<span class="fc" id="L226">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Board.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">INFO1113 TowerDefence</a> &gt; <a href="index.source.html" class="el_package">WizardTD.board</a> &gt; <span class="el_source">Board.java</span></div><h1>Board.java</h1><pre class="source lang-java linenums">package WizardTD.board;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
+
+import processing.core.PApplet;
+import processing.core.PImage;
+import WizardTD.utils.Drawable;
+import WizardTD.utils.ImageLoader;
+import WizardTD.utils.ImageManipulation;
+import static WizardTD.utils.Dimensions.*;
+
+import WizardTD.board.Tile.PathType;
+import WizardTD.board.Tile.TileType;
+import WizardTD.board.towers.Tower;
+
+import WizardTD.entities.monsters.movement.Path;
+
+public class Board implements Drawable {
+    private Tile[][] board;
+
+    private Path[] paths;
+<span class="fc" id="L25">    ArrayList&lt;Tile&gt; spawnTiles = new ArrayList&lt;&gt;();</span>
+    private Tile wizardHouse;
+
+    private File levelFile;
+
+    /**
+     * Initalises the level file and board matrix.
+     * 
+     * @param layoutPath a String representing the path to the relevant level file.
+     */
+<span class="fc" id="L35">    public Board(String layoutPath) {</span>
+<span class="fc" id="L36">        this.levelFile = new File(layoutPath);</span>
+<span class="fc" id="L37">        board = new Tile[BOARD_DIM][BOARD_DIM];</span>
+<span class="fc" id="L38">    }</span>
+
+    /**
+     * Creates the initial multi-dimensional array of trials that represents the
+     * game board and loads the relevant tile
+     * data into this array from the level file.
+     */
+    public void createTileMatrix() {
+<span class="fc" id="L46">        String[] tileLocations = new String[20];</span>
+
+        try {
+<span class="fc" id="L49">            Scanner scanner = new Scanner(levelFile);</span>
+
+<span class="fc" id="L51">            int lineNumber = 0;</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            while (scanner.hasNextLine()) {</span>
+<span class="fc" id="L53">                tileLocations[lineNumber] = scanner.nextLine();</span>
+<span class="fc" id="L54">                lineNumber++;</span>
+            }
+
+<span class="fc" id="L57">            scanner.close();</span>
+<span class="nc" id="L58">        } catch (Exception e) {</span>
+<span class="nc" id="L59">            System.out.println(&quot;Yas queen&quot;);</span>
+<span class="fc" id="L60">        }</span>
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for (int i = 0; i &lt; BOARD_DIM; i++) {</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            for (int j = 0; j &lt; BOARD_DIM; j++) {</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">                if (j &lt; tileLocations[i].length() - 1) {</span>
+<span class="fc" id="L65">                    board[i][j] = new Tile(tileLocations[i].charAt(j), i, j);</span>
+                } else {
+<span class="fc" id="L67">                    board[i][j] = board[i][j] = new Tile(' ', i, j);</span>
+                }
+            }
+        }
+<span class="fc" id="L71">    }</span>
+
+    /**
+     * Determines the appropriate rotation of every image (particularly path images)
+     * and assigns the rotated images to
+     * the tiles such that they can be accessed and drawn.
+     * 
+     * @param app the PApplet of the current game.
+     */
+    public void assignTileImages(PApplet app) {
+        // Load images
+<span class="fc" id="L82">        PImage grassImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/grass.png&quot;); // app.loadImage(&quot;src/main/resources/WizardTD/grass.png&quot;);</span>
+<span class="fc" id="L83">        PImage shrubImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/shrub.png&quot;); // app.loadImage(&quot;src/main/resources/WizardTD/shrub.png&quot;);</span>
+<span class="fc" id="L84">        PImage houseImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/wizard_house.png&quot;); // app.loadImage(&quot;src/main/resources/WizardTD/wizard_house.png&quot;);</span>
+<span class="fc" id="L85">        PImage pathLinearImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/path0.png&quot;); // app.loadImage(&quot;src/main/resources/WizardTD/path0.png&quot;);</span>
+<span class="fc" id="L86">        PImage pathCornerImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/path1.png&quot;); // app.loadImage(&quot;src/main/resources/WizardTD/path1.png&quot;);</span>
+<span class="fc" id="L87">        PImage pathJunctionImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/path2.png&quot;); // app.loadImage(&quot;src/main/resources/WizardTD/path2.png&quot;);</span>
+<span class="fc" id="L88">        PImage pathIntersectionImage = ImageLoader.getImage(&quot;src/main/resources/WizardTD/path3.png&quot;); // app.loadImage(&quot;src/main/resources/WizardTD/path3.png&quot;);</span>
+        // PImage testImage =
+        // ImageLoader.getImage(&quot;src/main/resources/WizardTD/tower0.png&quot;); //
+        // app.loadImage(&quot;src/main/resources/WizardTD/tower0.png&quot;);
+
+        // Assign images
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        for (int i = 0; i &lt; BOARD_DIM; i++) {</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">            for (int j = 0; j &lt; BOARD_DIM; j++) {</span>
+<span class="pc bpc" id="L96" title="1 of 5 branches missed.">                switch (board[i][j].getTileType()) {</span>
+                    case GRASS:
+<span class="fc" id="L98">                        board[i][j].setTileImage(grassImage);</span>
+<span class="fc" id="L99">                        break;</span>
+                    case SHRUB:
+<span class="fc" id="L101">                        board[i][j].setTileImage(shrubImage);</span>
+<span class="fc" id="L102">                        break;</span>
+                    case WIZARDHOUSE:
+                        // board[i][j].setWizardGrassImage(grassImage);
+<span class="fc" id="L105">                        board[i][j].setTileImage(houseImage);</span>
+<span class="fc" id="L106">                        break;</span>
+                    case PATH:
+<span class="fc" id="L108">                        boolean[] proximatePathPresence = { false, false, false, false };</span>
+<span class="fc" id="L109">                        int pathConnections = 0;</span>
+<span class="fc" id="L110">                        int sequentialConnections = 0;</span>
+
+<span class="fc bfc" id="L112" title="All 2 branches covered.">                        if (i != 0) {</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">                            if (board[i - 1][j].isWalkable() == true) {</span>
+<span class="fc" id="L114">                                proximatePathPresence[3] = true;</span>
+                            }
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">                        } else if (i == 0) {</span>
+<span class="fc" id="L117">                            proximatePathPresence[3] = true;</span>
+                        }
+
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">                        if (i &lt; BOARD_DIM - 1) {</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                            if (board[i + 1][j].isWalkable() == true) {</span>
+<span class="fc" id="L122">                                proximatePathPresence[1] = true;</span>
+                            }
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                        } else if (i == BOARD_DIM - 1) {</span>
+<span class="nc" id="L125">                            proximatePathPresence[1] = true;</span>
+                        }
+
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">                        if (j &lt; BOARD_DIM - 1) {</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                            if (board[i][j + 1].isWalkable() == true) {</span>
+<span class="fc" id="L130">                                proximatePathPresence[2] = true;</span>
+                            }
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                        } else if (j == BOARD_DIM - 1) {</span>
+<span class="nc" id="L133">                            proximatePathPresence[2] = true;</span>
+                        }
+
+<span class="fc bfc" id="L136" title="All 2 branches covered.">                        if (j != 0) {</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">                            if (board[i][j - 1].isWalkable() == true) {</span>
+<span class="fc" id="L138">                                proximatePathPresence[0] = true;</span>
+                            }
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">                        } else if (j == 0) {</span>
+<span class="fc" id="L141">                            proximatePathPresence[0] = true;</span>
+                        }
+
+<span class="fc" id="L144">                        int firstWalkable = 0;</span>
+<span class="fc" id="L145">                        int firstUnwalkable = -1;</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">                        for (int k = 0; k &lt; proximatePathPresence.length; k++) {</span>
+
+<span class="fc bfc" id="L148" title="All 2 branches covered.">                            if (proximatePathPresence[k] == true) {</span>
+<span class="fc" id="L149">                                firstWalkable = k;</span>
+                            } else {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">                                if (firstUnwalkable == -1) {</span>
+<span class="fc" id="L152">                                    firstUnwalkable = k;</span>
+                                }
+                            }
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">                            if (k != proximatePathPresence.length - 1) {</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">                                if (proximatePathPresence[k + 1] == true) {</span>
+<span class="fc" id="L158">                                    pathConnections++;</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">                                    if (proximatePathPresence[k] == true) {</span>
+<span class="fc" id="L160">                                        sequentialConnections = sequentialConnections + 2;</span>
+                                    }
+                                }
+                            } else {
+<span class="fc bfc" id="L164" title="All 2 branches covered.">                                if (proximatePathPresence[0] == true) {</span>
+<span class="fc" id="L165">                                    pathConnections++;</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">                                    if (proximatePathPresence[k] == true) {</span>
+<span class="fc" id="L167">                                        sequentialConnections = sequentialConnections + 2;</span>
+                                    }
+                                }
+                            }
+                        }
+
+<span class="fc bfc" id="L173" title="All 2 branches covered.">                        if (pathConnections == 4) {</span>
+<span class="fc" id="L174">                            board[i][j].setPathType(PathType.INTERSECTION);</span>
+<span class="fc" id="L175">                            board[i][j].setTileImage(pathIntersectionImage);</span>
+
+<span class="fc bfc" id="L177" title="All 2 branches covered.">                        } else if (pathConnections == 3) {</span>
+<span class="fc" id="L178">                            board[i][j].setPathType(PathType.JUNCTION);</span>
+<span class="fc" id="L179">                            PImage rotatedImage = ImageManipulation.rotateImageByDegrees(app,</span>
+                                    pathJunctionImage, 90 * (firstUnwalkable));
+
+<span class="fc" id="L182">                            board[i][j].setTileImage(rotatedImage);</span>
+<span class="fc" id="L183">                        } else {</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                            if (sequentialConnections == 2) {</span>
+<span class="fc" id="L185">                                board[i][j].setPathType(PathType.CORNER);</span>
+<span class="fc" id="L186">                                int rotateAngle = 0;</span>
+
+<span class="pc bpc" id="L188" title="1 of 4 branches missed.">                                if (proximatePathPresence[0] == false &amp;&amp; proximatePathPresence[1] == false) {</span>
+<span class="nc" id="L189">                                    rotateAngle = 0;</span>
+<span class="pc bpc" id="L190" title="1 of 4 branches missed.">                                } else if (proximatePathPresence[1] == false &amp;&amp; proximatePathPresence[2] == false) {</span>
+<span class="fc" id="L191">                                    rotateAngle = 90;</span>
+<span class="pc bpc" id="L192" title="1 of 4 branches missed.">                                } else if (proximatePathPresence[2] == false &amp;&amp; proximatePathPresence[3] == false) {</span>
+<span class="fc" id="L193">                                    rotateAngle = 180;</span>
+<span class="pc bpc" id="L194" title="2 of 4 branches missed.">                                } else if (proximatePathPresence[3] == false &amp;&amp; proximatePathPresence[0] == false) {</span>
+<span class="fc" id="L195">                                    rotateAngle = 270;</span>
+                                }
+
+<span class="fc" id="L198">                                PImage rotatedImage = ImageManipulation.rotateImageByDegrees(app, pathCornerImage,</span>
+                                        rotateAngle);
+
+<span class="fc" id="L201">                                board[i][j].setTileImage(rotatedImage);</span>
+<span class="fc" id="L202">                            } else {</span>
+<span class="fc" id="L203">                                board[i][j].setPathType(PathType.LINEAR);</span>
+<span class="fc" id="L204">                                PImage rotatedImage = ImageManipulation.rotateImageByDegrees(app, pathLinearImage,</span>
+                                        90 * (firstWalkable + 1));
+
+<span class="fc" id="L207">                                board[i][j].setTileImage(rotatedImage);</span>
+                            }
+                        }
+<span class="fc" id="L210">                        break;</span>
+                    default:
+                        break;
+                }
+            }
+        }
+<span class="fc" id="L216">    }</span>
+
+    /**
+     * Iteratres through every tile on the board and stores them in the appropriate
+     * object if they are of
+     * such significance such that they likeley need to be retriveed frequently at a
+     * later time.
+     */
+    public void findSignificantTiles() {
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        for (int i = 0; i &lt; BOARD_DIM; i++) {</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">            for (int j = 0; j &lt; BOARD_DIM; j++) {</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">                if (board[i][j].getTileType() == TileType.PATH) {</span>
+<span class="pc bpc" id="L228" title="1 of 4 branches missed.">                    if (i == 0 || i == BOARD_DIM - 1) {</span>
+<span class="fc" id="L229">                        spawnTiles.add(board[i][j]);</span>
+<span class="pc bpc" id="L230" title="1 of 4 branches missed.">                    } else if (j == 0 || j == BOARD_DIM - 1) {</span>
+<span class="fc" id="L231">                        spawnTiles.add(board[i][j]);</span>
+                    }
+                }
+
+<span class="fc bfc" id="L235" title="All 2 branches covered.">                if (board[i][j].getTileType() == TileType.WIZARDHOUSE) {</span>
+<span class="fc" id="L236">                    wizardHouse = board[i][j];</span>
+                }
+            }
+        }
+<span class="fc" id="L240">    }</span>
+
+    /**
+     * Finds the shortest path from every possible starting point and stores the
+     * paths in an array.
+     */
+    public void getAllPaths() {
+<span class="fc" id="L247">        paths = new Path[spawnTiles.size()];</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">        for (int i = 0; i &lt; spawnTiles.size(); i++) {</span>
+<span class="fc" id="L249">            paths[i] = new Path(this, spawnTiles.get(i));</span>
+        }
+<span class="fc" id="L251">    }</span>
+
+    /**
+     * Retrives a copy of a path from the array of all optimal paths.
+     * 
+     * @param pathIndex an identifier of the desired path.
+     * @return a path from the edge of the board to the wizard house.
+     */
+    public Path getPath(int pathIndex) {
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        if (paths.length != 0) {</span>
+<span class="fc bfc" id="L261" title="All 4 branches covered.">            if (pathIndex &gt;= 0 &amp;&amp; pathIndex &lt; paths.length) {</span>
+<span class="fc" id="L262">                return new Path(this, paths[pathIndex]);</span>
+            }
+        }
+<span class="fc" id="L265">        return null;</span>
+    }
+
+    public Path getRandomPath() {
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">        if (paths.length != 0) {</span>
+<span class="fc" id="L270">            Random random = new Random();</span>
+<span class="fc" id="L271">            int n = random.nextInt(paths.length);</span>
+
+<span class="fc" id="L273">            return new Path(this, paths[n]);</span>
+        } else {
+<span class="nc" id="L275">            return null;</span>
+        }
+    }
+
+    /**
+     * @return The tile that contains the wizard house.
+     */
+    public Tile getWizardHouse() {
+<span class="fc" id="L283">        return wizardHouse;</span>
+    }
+
+    /**
+     * The number of path tiles around the edge of the board.
+     * 
+     * @return An integer representing the number of tiles a monster can spawn on.
+     */
+    public int getNumberSpawnTiles() {
+<span class="fc" id="L292">        return spawnTiles.size();</span>
+    }
+
+    /**
+     * @param id an identifer for the desired spawn tile in the spawn tiles array.
+     * @return The selected tile upon which it is possible for monster's to spawn.
+     */
+    public Tile getSpawnTile(int id) {
+<span class="fc" id="L300">        return spawnTiles.get(id);</span>
+    }
+
+    /**
+     * Set the file that will be used to determine and load the game board.
+     * 
+     * @param levelFile a File object containing the text file which describes the
+     *                  level to be loaded.
+     */
+    public void setLevel(File levelFile) {
+<span class="nc" id="L310">        this.levelFile = levelFile;</span>
+<span class="nc" id="L311">    }</span>
+
+    /**
+     * Brings together all of the initial steps for generating a game board. This
+     * method, creates the tile matrix,
+     * assigns all tile images, finds the significant tiles and generates all
+     * optimal paths.
+     * 
+     * @param app the PApplet of the current game window.
+     */
+    public void constructBoard(PApplet app) {
+<span class="fc" id="L322">        createTileMatrix();</span>
+<span class="fc" id="L323">        assignTileImages(app);</span>
+<span class="fc" id="L324">        findSignificantTiles();</span>
+<span class="fc" id="L325">        getAllPaths();</span>
+<span class="fc" id="L326">    }</span>
+
+    /**
+     * Constructs a tower on a specified tile.
+     * 
+     * @param tower the Tower to be built on the relevant tile.
+     * @param xLoc  the x-axis location of the new tower.
+     * @param yLoc  the y-axis location of the new tower.
+     */
+    public void buildTower(Tower tower, int xLoc, int yLoc) {
+<span class="fc" id="L336">        board[yLoc][xLoc].buildTower(tower);</span>
+<span class="fc" id="L337">    }</span>
+
+    /**
+     * Retrives a tile from the Tile matrix that represents the game board.
+     * 
+     * @param xLocation the number of tiles leftward.
+     * @param yLocation the number of tiles downard.
+     * @return the tile at the specified location.
+     */
+    public Tile getTile(int xLocation, int yLocation) {
+<span class="fc" id="L347">        return board[xLocation][yLocation];</span>
+    }
+
+    public void updateLogic() {
+
+<span class="nc" id="L352">    }</span>
+
+    public void draw(PApplet app) {
+<span class="fc bfc" id="L355" title="All 2 branches covered.">        for (int i = 0; i &lt; BOARD_DIM; i++) {</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">            for (int j = 0; j &lt; BOARD_DIM; j++) {</span>
+<span class="fc" id="L357">                Tile currentTile = board[i][j];</span>
+<span class="fc" id="L358">                currentTile.draw(app);</span>
+            }
+        }
+<span class="fc" id="L361">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
